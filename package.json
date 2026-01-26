@@ -1,0 +1,46 @@
+{
+  "name": "shot-manager",
+  "version": "1.0.0",
+  "description": "Screenshot and video recording application for macOS and Windows",
+  "main": "dist/main/index.js",
+  "author": "Shot Manager",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev:main\" \"npm run dev:renderer\"",
+    "dev:main": "node scripts/dev-main.js",
+    "dev:renderer": "vite --config vite.renderer.config.ts",
+    "build": "npm run build:main && npm run build:preload && npm run build:renderer",
+    "build:main": "vite build --config vite.main.config.ts",
+    "build:renderer": "vite build --config vite.renderer.config.ts",
+    "build:preload": "vite build --config vite.preload.config.ts",
+    "package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "start": "electron .",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "sql.js": "^1.10.3",
+    "date-fns": "^3.6.0",
+    "electron-store": "^8.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.9",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "electron": "^30.0.1",
+    "electron-builder": "^24.13.3",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
+  }
+}
