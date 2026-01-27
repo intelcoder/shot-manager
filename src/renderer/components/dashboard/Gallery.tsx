@@ -1,5 +1,6 @@
 import React from 'react';
 import GalleryItem from './GalleryItem';
+import { useCapturesStore } from '../../stores/captures-store';
 import type { CaptureFile } from '../../../shared/types/capture';
 
 interface GalleryProps {
@@ -10,6 +11,18 @@ interface GalleryProps {
 }
 
 function Gallery({ items, isLoading, onItemClick, onItemDelete }: GalleryProps) {
+  const { selectedIds, selectCapture, isSelected } = useCapturesStore();
+
+  const handleSelect = (item: CaptureFile, e: React.MouseEvent) => {
+    if (e.shiftKey) {
+      selectCapture(item.id, 'range');
+    } else if (e.ctrlKey || e.metaKey) {
+      selectCapture(item.id, 'toggle');
+    } else {
+      selectCapture(item.id, 'toggle');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -48,6 +61,8 @@ function Gallery({ items, isLoading, onItemClick, onItemDelete }: GalleryProps) 
           <GalleryItem
             key={item.id}
             item={item}
+            isSelected={isSelected(item.id)}
+            onSelect={(e) => handleSelect(item, e)}
             onClick={() => onItemClick(item)}
             onDelete={() => onItemDelete(item)}
           />

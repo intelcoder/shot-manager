@@ -8,6 +8,8 @@ import type {
   RecordingState,
 } from './capture';
 import type { AppSettings, ShortcutConfig } from './settings';
+import type { Folder, FolderTree, CreateFolderInput, UpdateFolderInput } from './folder';
+import type { CleanupRule, CreateCleanupRuleInput, UpdateCleanupRuleInput, CleanupPreview, CleanupResult, CleanupHistoryEntry } from './cleanup';
 
 export interface FileQueryOptions {
   type?: 'screenshot' | 'video' | 'all';
@@ -16,8 +18,15 @@ export interface FileQueryOptions {
   endDate?: string;
   tags?: number[];
   search?: string;
+  folderId?: number | null | 'uncategorized';
   limit?: number;
   offset?: number;
+}
+
+export interface FolderTreeResponse {
+  folders: FolderTree[];
+  uncategorizedCount: number;
+  totalCount: number;
 }
 
 export interface RecordingStartData {
@@ -102,6 +111,29 @@ export interface ElectronAPI {
   deleteTag: (id: number) => Promise<void>;
   addTagToCapture: (captureId: number, tagId: number) => Promise<void>;
   removeTagFromCapture: (captureId: number, tagId: number) => Promise<void>;
+
+  // Folders
+  createFolder: (input: CreateFolderInput) => Promise<Folder>;
+  getAllFolders: () => Promise<Folder[]>;
+  getFolderTree: () => Promise<FolderTreeResponse>;
+  updateFolder: (id: number, input: UpdateFolderInput) => Promise<Folder | null>;
+  deleteFolder: (id: number) => Promise<void>;
+
+  // Batch operations
+  moveCapturesTo: (captureIds: number[], folderId: number | null) => Promise<void>;
+  deleteCapturesBatch: (captureIds: number[]) => Promise<void>;
+  tagCapturesBatch: (captureIds: number[], tagId: number, action: 'add' | 'remove') => Promise<void>;
+  toggleCaptureStar: (captureId: number) => Promise<boolean>;
+  starCapturesBatch: (captureIds: number[], starred: boolean) => Promise<void>;
+
+  // Cleanup rules
+  createCleanupRule: (input: CreateCleanupRuleInput) => Promise<CleanupRule>;
+  updateCleanupRule: (id: number, input: UpdateCleanupRuleInput) => Promise<CleanupRule | null>;
+  deleteCleanupRule: (id: number) => Promise<void>;
+  getAllCleanupRules: () => Promise<CleanupRule[]>;
+  previewCleanup: (ruleId: number) => Promise<CleanupPreview>;
+  executeCleanup: (ruleId: number) => Promise<CleanupResult>;
+  getCleanupHistory: () => Promise<CleanupHistoryEntry[]>;
 
   // Settings
   getSettings: () => Promise<AppSettings>;

@@ -3,13 +3,14 @@ import GeneralSettings from './GeneralSettings';
 import FileSettings from './FileSettings';
 import CaptureSettings from './CaptureSettings';
 import ShortcutSettings from './ShortcutSettings';
+import CleanupSettings from './CleanupSettings';
 import { useSettingsStore } from '../../stores/settings-store';
 
 interface SettingsPanelProps {
   onBack: () => void;
 }
 
-type SettingsTab = 'general' | 'files' | 'capture' | 'shortcuts';
+type SettingsTab = 'general' | 'files' | 'capture' | 'shortcuts' | 'cleanup';
 
 function SettingsPanel({ onBack }: SettingsPanelProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
@@ -33,6 +34,7 @@ function SettingsPanel({ onBack }: SettingsPanelProps) {
     { id: 'files', label: 'Files & Storage', icon: '📁' },
     { id: 'capture', label: 'Capture', icon: '📷' },
     { id: 'shortcuts', label: 'Keyboard Shortcuts', icon: '⌨️' },
+    { id: 'cleanup', label: 'Auto-Cleanup', icon: '🧹' },
   ];
 
   return (
@@ -72,6 +74,7 @@ function SettingsPanel({ onBack }: SettingsPanelProps) {
         {activeTab === 'files' && <FileSettings />}
         {activeTab === 'capture' && <CaptureSettings />}
         {activeTab === 'shortcuts' && <ShortcutSettings />}
+        {activeTab === 'cleanup' && <CleanupSettings />}
       </div>
     </div>
   );

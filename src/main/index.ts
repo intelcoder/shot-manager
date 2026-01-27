@@ -6,6 +6,7 @@ import { registerIpcHandlers } from './ipc/handlers';
 import { initDatabase } from './services/database';
 import { shortcutManager } from './services/shortcuts';
 import { initSettings } from './services/settings';
+import { initCleanupScheduler, stopCleanupScheduler } from './services/cleanup-scheduler';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -22,6 +23,9 @@ async function initialize() {
 
   // Register global shortcuts
   shortcutManager.registerAll();
+
+  // Initialize cleanup scheduler
+  initCleanupScheduler();
 
   // Create main window (hidden by default)
   createMainWindow();
@@ -46,6 +50,7 @@ app.on('activate', () => {
 app.on('before-quit', () => {
   // Cleanup
   shortcutManager.unregisterAll();
+  stopCleanupScheduler();
 });
 
 // Handle second instance

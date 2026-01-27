@@ -49,11 +49,15 @@ export interface CaptureRecord {
   duration: number | null;
   size: number;
   thumbnail_path: string | null;
+  folder_id: number | null;
+  is_starred: boolean;
   created_at: string;
 }
 
 export interface CaptureFile extends CaptureRecord {
   tags: Tag[];
+  folderId: number | null;
+  isStarred: boolean;
 }
 
 export interface Tag {

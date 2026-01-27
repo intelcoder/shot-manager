@@ -39,6 +39,46 @@ const electronAPI: ElectronAPI = {
   removeTagFromCapture: (captureId, tagId) =>
     ipcRenderer.invoke(IPC_CHANNELS.TAG_REMOVE, captureId, tagId),
 
+  // Folders
+  createFolder: (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.FOLDER_CREATE, input),
+  getAllFolders: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.FOLDER_LIST),
+  getFolderTree: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.FOLDER_GET_TREE),
+  updateFolder: (id, input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.FOLDER_UPDATE, id, input),
+  deleteFolder: (id) =>
+    ipcRenderer.invoke(IPC_CHANNELS.FOLDER_DELETE, id),
+
+  // Batch operations
+  moveCapturesTo: (captureIds, folderId) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAPTURES_MOVE_TO_FOLDER, captureIds, folderId),
+  deleteCapturesBatch: (captureIds) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAPTURES_DELETE_BATCH, captureIds),
+  tagCapturesBatch: (captureIds, tagId, action) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAPTURES_TAG_BATCH, captureIds, tagId, action),
+  toggleCaptureStar: (captureId) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAPTURE_TOGGLE_STAR, captureId),
+  starCapturesBatch: (captureIds, starred) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CAPTURES_STAR_BATCH, captureIds, starred),
+
+  // Cleanup rules
+  createCleanupRule: (input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_RULE_CREATE, input),
+  updateCleanupRule: (id, input) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_RULE_UPDATE, id, input),
+  deleteCleanupRule: (id) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_RULE_DELETE, id),
+  getAllCleanupRules: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_RULE_LIST),
+  previewCleanup: (ruleId) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_PREVIEW, ruleId),
+  executeCleanup: (ruleId) =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_EXECUTE, ruleId),
+  getCleanupHistory: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.CLEANUP_HISTORY),
+
   // Settings
   getSettings: () =>
     ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET),

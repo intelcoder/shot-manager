@@ -21,6 +21,29 @@ export const IPC_CHANNELS = {
   TAG_CREATE: 'tag:create',
   TAG_DELETE: 'tag:delete',
 
+  // Folders
+  FOLDER_CREATE: 'folder:create',
+  FOLDER_UPDATE: 'folder:update',
+  FOLDER_DELETE: 'folder:delete',
+  FOLDER_LIST: 'folder:list',
+  FOLDER_GET_TREE: 'folder:get-tree',
+
+  // Batch operations
+  CAPTURES_MOVE_TO_FOLDER: 'captures:move-to-folder',
+  CAPTURES_DELETE_BATCH: 'captures:delete-batch',
+  CAPTURES_TAG_BATCH: 'captures:tag-batch',
+  CAPTURE_TOGGLE_STAR: 'capture:toggle-star',
+  CAPTURES_STAR_BATCH: 'captures:star-batch',
+
+  // Cleanup rules
+  CLEANUP_RULE_CREATE: 'cleanup:rule:create',
+  CLEANUP_RULE_UPDATE: 'cleanup:rule:update',
+  CLEANUP_RULE_DELETE: 'cleanup:rule:delete',
+  CLEANUP_RULE_LIST: 'cleanup:rule:list',
+  CLEANUP_PREVIEW: 'cleanup:preview',
+  CLEANUP_EXECUTE: 'cleanup:execute',
+  CLEANUP_HISTORY: 'cleanup:history',
+
   // Settings
   SETTINGS_GET: 'settings:get',
   SETTINGS_SET: 'settings:set',

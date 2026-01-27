@@ -2,7 +2,34 @@ import { ipcMain, shell, desktopCapturer, screen, BrowserWindow } from 'electron
 import { IPC_CHANNELS } from '../../shared/constants/channels';
 import { captureScreenshot, getDisplayInfo } from '../capture/screenshot';
 import { startRecording, stopRecording, pauseRecording, resumeRecording, getRecordingState, initializeRecordingIpc } from '../capture/video';
-import { getCaptures, getAllTags, createTag, deleteTag, addTagToCapture, removeTagFromCapture } from '../services/database';
+import {
+  getCaptures,
+  getAllTags,
+  createTag,
+  deleteTag,
+  addTagToCapture,
+  removeTagFromCapture,
+  createFolder,
+  getAllFolders,
+  getFolderTree,
+  updateFolder,
+  deleteFolder,
+  moveCapturesTo,
+  deleteCapturesBatch,
+  addTagToCapturesBatch,
+  removeTagFromCapturesBatch,
+  getUncategorizedCount,
+  getTotalCaptureCount,
+  toggleCaptureStar,
+  toggleCapturesBatchStar,
+  createCleanupRule,
+  updateCleanupRule,
+  deleteCleanupRule,
+  getAllCleanupRules,
+  getCleanupHistory,
+} from '../services/database';
+import { previewCleanup, executeCleanup } from '../services/cleanup';
+import type { CreateCleanupRuleInput, UpdateCleanupRuleInput } from '../../shared/types/cleanup';
 import { getSettings, getSetting, setSetting, resetSettings } from '../services/settings';
 import { shortcutManager } from '../services/shortcuts';
 import { deleteFile, openFile, showInFolder, selectSavePath, renameFile } from '../services/file-manager';
@@ -76,6 +103,85 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.TAG_REMOVE, async (_event, captureId: number, tagId: number) => {
     return removeTagFromCapture(captureId, tagId);
+  });
+
+  // Folder handlers
+  ipcMain.handle(IPC_CHANNELS.FOLDER_CREATE, async (_event, input) => {
+    return createFolder(input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOLDER_LIST, async () => {
+    return getAllFolders();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOLDER_GET_TREE, async () => {
+    return {
+      folders: getFolderTree(),
+      uncategorizedCount: getUncategorizedCount(),
+      totalCount: getTotalCaptureCount(),
+    };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOLDER_UPDATE, async (_event, id: number, input) => {
+    return updateFolder(id, input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FOLDER_DELETE, async (_event, id: number) => {
+    return deleteFolder(id);
+  });
+
+  // Batch operation handlers
+  ipcMain.handle(IPC_CHANNELS.CAPTURES_MOVE_TO_FOLDER, async (_event, captureIds: number[], folderId: number | null) => {
+    return moveCapturesTo(captureIds, folderId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CAPTURES_DELETE_BATCH, async (_event, captureIds: number[]) => {
+    return deleteCapturesBatch(captureIds);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CAPTURES_TAG_BATCH, async (_event, captureIds: number[], tagId: number, action: 'add' | 'remove') => {
+    if (action === 'add') {
+      return addTagToCapturesBatch(captureIds, tagId);
+    } else {
+      return removeTagFromCapturesBatch(captureIds, tagId);
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CAPTURE_TOGGLE_STAR, async (_event, captureId: number) => {
+    return toggleCaptureStar(captureId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CAPTURES_STAR_BATCH, async (_event, captureIds: number[], starred: boolean) => {
+    return toggleCapturesBatchStar(captureIds, starred);
+  });
+
+  // Cleanup rule handlers
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_RULE_CREATE, async (_event, input: CreateCleanupRuleInput) => {
+    return createCleanupRule(input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_RULE_UPDATE, async (_event, id: number, input: UpdateCleanupRuleInput) => {
+    return updateCleanupRule(id, input);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_RULE_DELETE, async (_event, id: number) => {
+    return deleteCleanupRule(id);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_RULE_LIST, async () => {
+    return getAllCleanupRules();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_PREVIEW, async (_event, ruleId: number) => {
+    return previewCleanup(ruleId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_EXECUTE, async (_event, ruleId: number) => {
+    return executeCleanup(ruleId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.CLEANUP_HISTORY, async () => {
+    return getCleanupHistory();
   });
 
   // Settings handlers
