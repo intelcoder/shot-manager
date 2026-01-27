@@ -20,6 +20,67 @@ export interface FileQueryOptions {
   offset?: number;
 }
 
+export interface RecordingStartData {
+  sourceId: string;
+  options: RecordingOptions;
+  display: {
+    width: number;
+    height: number;
+    scaleFactor: number;
+  };
+}
+
+export interface RecordingData {
+  buffer: ArrayBuffer;
+  width: number;
+  height: number;
+}
+
+export interface CountdownData {
+  duration: number;
+  options: RecordingOptions;
+  sourceId: string;
+  display: {
+    width: number;
+    height: number;
+    scaleFactor: number;
+  };
+}
+
+export interface OverlayInitData {
+  mode: 'countdown' | 'recording';
+  countdownDuration?: number;
+}
+
+export interface OverlayRecordingStatusData {
+  duration: number;
+  isPaused: boolean;
+}
+
+export interface AreaBorderInitData {
+  area: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  screenBounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
+export interface AreaBorderUpdateData {
+  area: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
+
 export interface ElectronAPI {
   // Capture
   takeScreenshot: (options: ScreenshotOptions) => Promise<CaptureResult>;
@@ -31,6 +92,7 @@ export interface ElectronAPI {
   // Files
   getAllFiles: (options?: FileQueryOptions) => Promise<CaptureFile[]>;
   deleteFile: (id: number) => Promise<void>;
+  renameFile: (id: number, newFilename: string) => Promise<{ success: boolean; error?: string; capture?: CaptureFile }>;
   openFile: (filepath: string) => Promise<void>;
   openInFolder: (filepath: string) => void;
 
@@ -65,6 +127,31 @@ export interface ElectronAPI {
   onCaptureComplete: (callback: (result: CaptureResult) => void) => () => void;
   onRecordingStatus: (callback: (state: RecordingState) => void) => () => void;
   onShortcutTriggered: (callback: (actionId: string) => void) => () => void;
+  onPreviewData: (callback: (data: CaptureResult) => void) => () => void;
+
+  // Recording commands (main -> renderer)
+  onRecordingStart: (callback: (data: RecordingStartData) => void) => () => void;
+  onRecordingStop: (callback: () => void) => () => void;
+  onRecordingPause: (callback: () => void) => () => void;
+  onRecordingResume: (callback: () => void) => () => void;
+  sendRecordingData: (data: RecordingData) => void;
+
+  // Countdown
+  onRecordingCountdown: (callback: (data: CountdownData) => void) => () => void;
+  sendCountdownComplete: () => void;
+  sendCountdownCancel: () => void;
+
+  // Shortcut events
+  onRecordWindowShortcut: (callback: () => void) => () => void;
+
+  // Recording overlay events
+  onOverlayInit: (callback: (data: OverlayInitData) => void) => () => void;
+  onOverlaySwitchMode: (callback: (data: { mode: 'countdown' | 'recording' }) => void) => () => void;
+  onOverlayRecordingStatus: (callback: (data: OverlayRecordingStatusData) => void) => () => void;
+
+  // Area border overlay events
+  onAreaBorderInit: (callback: (data: AreaBorderInitData) => void) => () => void;
+  onAreaBorderUpdate: (callback: (data: AreaBorderUpdateData) => void) => () => void;
 }
 
 declare global {

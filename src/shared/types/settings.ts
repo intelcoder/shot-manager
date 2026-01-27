@@ -21,6 +21,11 @@ export interface AppSettings {
   videoQuality: 'low' | 'medium' | 'high';
   audioEnabled: boolean;
   defaultAudioDevice: string | null;
+  maxRecordingDuration: number; // seconds, 0 = unlimited
+
+  // Countdown
+  countdownEnabled: boolean;
+  countdownDuration: 3 | 5 | 10;
 }
 
 export interface ShortcutConfig {
@@ -65,6 +70,13 @@ export const SHORTCUT_ACTIONS: ShortcutAction[] = [
     defaultShortcut: 'CommandOrControl+Shift+6',
   },
   {
+    id: 'record-window',
+    label: 'Record (Window)',
+    description: 'Record a specific window',
+    category: 'recording',
+    defaultShortcut: 'CommandOrControl+Shift+7',
+  },
+  {
     id: 'record-stop',
     label: 'Stop Recording',
     description: 'Stop current recording',
@@ -96,4 +108,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   videoQuality: 'high',
   audioEnabled: false,
   defaultAudioDevice: null,
+  maxRecordingDuration: 0, // 0 = unlimited
+  countdownEnabled: true,
+  countdownDuration: 3,
 };

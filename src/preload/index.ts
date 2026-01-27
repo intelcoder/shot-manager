@@ -20,6 +20,8 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.FILE_GET_ALL, options),
   deleteFile: (id) =>
     ipcRenderer.invoke(IPC_CHANNELS.FILE_DELETE, id),
+  renameFile: (id, newFilename) =>
+    ipcRenderer.invoke(IPC_CHANNELS.FILE_RENAME, id, newFilename),
   openFile: (filepath) =>
     ipcRenderer.invoke(IPC_CHANNELS.FILE_OPEN, filepath),
   openInFolder: (filepath) =>
@@ -84,6 +86,85 @@ const electronAPI: ElectronAPI = {
     const handler = (_event: Electron.IpcRendererEvent, actionId: string) => callback(actionId);
     ipcRenderer.on(IPC_CHANNELS.ON_SHORTCUT_TRIGGERED, handler);
     return () => ipcRenderer.removeListener(IPC_CHANNELS.ON_SHORTCUT_TRIGGERED, handler);
+  },
+  onPreviewData: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.ON_PREVIEW_DATA, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.ON_PREVIEW_DATA, handler);
+  },
+
+  // Recording commands (main -> renderer)
+  onRecordingStart: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.RECORDING_START, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.RECORDING_START, handler);
+  },
+  onRecordingStop: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.RECORDING_STOP, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.RECORDING_STOP, handler);
+  },
+  onRecordingPause: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.RECORDING_PAUSE, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.RECORDING_PAUSE, handler);
+  },
+  onRecordingResume: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.RECORDING_RESUME, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.RECORDING_RESUME, handler);
+  },
+  sendRecordingData: (data) => {
+    ipcRenderer.send(IPC_CHANNELS.RECORDING_DATA, data);
+  },
+
+  // Countdown
+  onRecordingCountdown: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.RECORDING_COUNTDOWN, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.RECORDING_COUNTDOWN, handler);
+  },
+  sendCountdownComplete: () => {
+    ipcRenderer.send(IPC_CHANNELS.RECORDING_COUNTDOWN_COMPLETE);
+  },
+  sendCountdownCancel: () => {
+    ipcRenderer.send(IPC_CHANNELS.RECORDING_COUNTDOWN_CANCEL);
+  },
+
+  // Shortcut events
+  onRecordWindowShortcut: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on(IPC_CHANNELS.SHORTCUT_RECORD_WINDOW, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.SHORTCUT_RECORD_WINDOW, handler);
+  },
+
+  // Recording overlay events
+  onOverlayInit: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.OVERLAY_INIT, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.OVERLAY_INIT, handler);
+  },
+  onOverlaySwitchMode: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.OVERLAY_SWITCH_MODE, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.OVERLAY_SWITCH_MODE, handler);
+  },
+  onOverlayRecordingStatus: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.OVERLAY_RECORDING_STATUS, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.OVERLAY_RECORDING_STATUS, handler);
+  },
+
+  // Area border overlay events
+  onAreaBorderInit: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.AREA_BORDER_INIT, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.AREA_BORDER_INIT, handler);
+  },
+  onAreaBorderUpdate: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, data: any) => callback(data);
+    ipcRenderer.on(IPC_CHANNELS.AREA_BORDER_UPDATE, handler);
+    return () => ipcRenderer.removeListener(IPC_CHANNELS.AREA_BORDER_UPDATE, handler);
   },
 };
 

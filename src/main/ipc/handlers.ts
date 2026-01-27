@@ -1,11 +1,11 @@
 import { ipcMain, shell, desktopCapturer, screen, BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '../../shared/constants/channels';
 import { captureScreenshot, getDisplayInfo } from '../capture/screenshot';
-import { startRecording, stopRecording, pauseRecording, resumeRecording, getRecordingState } from '../capture/video';
+import { startRecording, stopRecording, pauseRecording, resumeRecording, getRecordingState, initializeRecordingIpc } from '../capture/video';
 import { getCaptures, getAllTags, createTag, deleteTag, addTagToCapture, removeTagFromCapture } from '../services/database';
 import { getSettings, getSetting, setSetting, resetSettings } from '../services/settings';
 import { shortcutManager } from '../services/shortcuts';
-import { deleteFile, openFile, showInFolder, selectSavePath } from '../services/file-manager';
+import { deleteFile, openFile, showInFolder, selectSavePath, renameFile } from '../services/file-manager';
 import { showMainWindow, hideMainWindow } from '../windows/main-window';
 import type { FileQueryOptions } from '../../shared/types/electron.d';
 
@@ -43,6 +43,10 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.FILE_DELETE, async (_event, id: number) => {
     return deleteFile(id);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.FILE_RENAME, async (_event, id: number, newFilename: string) => {
+    return renameFile(id, newFilename);
   });
 
   ipcMain.handle(IPC_CHANNELS.FILE_OPEN, async (_event, filepath: string) => {
@@ -137,4 +141,7 @@ export function registerIpcHandlers(): void {
   ipcMain.on('recording:data', (event, data) => {
     // This is handled in video.ts via one-time listener
   });
+
+  // Initialize recording IPC handlers (for countdown)
+  initializeRecordingIpc();
 }

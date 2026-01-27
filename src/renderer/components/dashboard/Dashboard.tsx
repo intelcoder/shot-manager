@@ -50,6 +50,10 @@ function Dashboard() {
     window.electronAPI?.openInFolder(item.filepath);
   };
 
+  const handleItemUpdate = (updatedItem: CaptureFile) => {
+    setSelectedItem(updatedItem);
+  };
+
   if (showSettings) {
     return (
       <div className="h-screen flex flex-col bg-white">
@@ -90,6 +94,7 @@ function Dashboard() {
           onDelete={handleItemDelete}
           onOpenFile={handleOpenFile}
           onShowInFolder={handleShowInFolder}
+          onItemUpdate={handleItemUpdate}
         />
       )}
     </div>

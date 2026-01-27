@@ -1,16 +1,54 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Dashboard from './components/dashboard/Dashboard';
 import CaptureOverlay from './components/capture/CaptureOverlay';
 import PreviewPopup from './components/preview/PreviewPopup';
+import CountdownOverlay from './components/capture/CountdownOverlay';
+import WindowPicker from './components/capture/WindowPicker';
+import RecordingOverlay from './components/overlay/RecordingOverlay';
+import AreaBorderOverlay from './components/overlay/AreaBorderOverlay';
 import { useRecordingStore } from './stores/recording-store';
+import { useMediaRecorder } from './hooks/useMediaRecorder';
+import type { CaptureResult } from '../shared/types/capture';
 
-type Route = 'dashboard' | 'capture' | 'preview';
+type Route = 'dashboard' | 'capture' | 'preview' | 'recording-overlay' | 'area-border';
 
 function App() {
   const [route, setRoute] = useState<Route>('dashboard');
   const [captureMode, setCaptureMode] = useState<'screenshot' | 'video'>('screenshot');
-  const [previewData, setPreviewData] = useState<any>(null);
+  const [previewData, setPreviewData] = useState<CaptureResult | null>(null);
+  const [showWindowPicker, setShowWindowPicker] = useState(false);
   const setRecordingState = useRecordingStore((state) => state.setRecordingState);
+  const { isCountingDown, countdownData, setCountdownState, startRecording } = useRecordingStore();
+
+  // Initialize MediaRecorder listeners for video recording
+  useMediaRecorder();
+
+  // Handle countdown complete
+  const handleCountdownComplete = useCallback(() => {
+    setCountdownState(false);
+    window.electronAPI?.sendCountdownComplete();
+  }, [setCountdownState]);
+
+  // Handle countdown cancel
+  const handleCountdownCancel = useCallback(() => {
+    setCountdownState(false);
+    window.electronAPI?.sendCountdownCancel();
+  }, [setCountdownState]);
+
+  // Handle window selection for recording
+  const handleWindowSelect = useCallback((windowId: string) => {
+    setShowWindowPicker(false);
+    startRecording({
+      mode: 'window',
+      windowId,
+      audio: { enabled: false },
+    });
+  }, [startRecording]);
+
+  // Handle window picker close
+  const handleWindowPickerClose = useCallback(() => {
+    setShowWindowPicker(false);
+  }, []);
 
   useEffect(() => {
     // Parse hash route
@@ -25,15 +63,11 @@ function App() {
         if (mode) setCaptureMode(mode);
       } else if (path === '/preview') {
         setRoute('preview');
-        const params = new URLSearchParams(queryString);
-        const data = params.get('data');
-        if (data) {
-          try {
-            setPreviewData(JSON.parse(decodeURIComponent(data)));
-          } catch (e) {
-            console.error('Failed to parse preview data:', e);
-          }
-        }
+        // Data now comes via IPC, not URL params
+      } else if (path === '/recording-overlay') {
+        setRoute('recording-overlay');
+      } else if (path === '/area-border') {
+        setRoute('area-border');
       } else {
         setRoute('dashboard');
       }
@@ -43,15 +77,33 @@ function App() {
     window.addEventListener('hashchange', handleHashChange);
 
     // Listen for recording status updates
-    const unsubscribe = window.electronAPI?.onRecordingStatus((state) => {
+    const unsubscribeRecording = window.electronAPI?.onRecordingStatus((state) => {
       setRecordingState(state);
+    });
+
+    // Listen for preview data via IPC (secure, no URL length limits)
+    const unsubscribePreview = window.electronAPI?.onPreviewData((data) => {
+      setPreviewData(data);
+    });
+
+    // Listen for countdown events
+    const unsubscribeCountdown = window.electronAPI?.onRecordingCountdown((data) => {
+      setCountdownState(true, data);
+    });
+
+    // Listen for window record shortcut
+    const unsubscribeWindowShortcut = window.electronAPI?.onRecordWindowShortcut(() => {
+      setShowWindowPicker(true);
     });
 
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
-      unsubscribe?.();
+      unsubscribeRecording?.();
+      unsubscribePreview?.();
+      unsubscribeCountdown?.();
+      unsubscribeWindowShortcut?.();
     };
-  }, [setRecordingState]);
+  }, [setRecordingState, setCountdownState]);
 
   // Handle closing capture overlay
   const handleCaptureClose = () => {
@@ -67,6 +119,27 @@ function App() {
   const handlePreviewDismiss = () => {
     window.electronAPI?.closeWindow();
   };
+
+  // Show countdown overlay if counting down
+  if (isCountingDown && countdownData) {
+    return (
+      <CountdownOverlay
+        duration={countdownData.duration}
+        onComplete={handleCountdownComplete}
+        onCancel={handleCountdownCancel}
+      />
+    );
+  }
+
+  // Show window picker if triggered
+  if (showWindowPicker) {
+    return (
+      <WindowPicker
+        onSelect={handleWindowSelect}
+        onClose={handleWindowPickerClose}
+      />
+    );
+  }
 
   switch (route) {
     case 'capture':
@@ -84,6 +157,10 @@ function App() {
           onDismiss={handlePreviewDismiss}
         />
       );
+    case 'recording-overlay':
+      return <RecordingOverlay />;
+    case 'area-border':
+      return <AreaBorderOverlay />;
     default:
       return <Dashboard />;
   }

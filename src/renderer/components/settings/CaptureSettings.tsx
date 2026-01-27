@@ -98,6 +98,56 @@ function CaptureSettings() {
           onChange={(value) => updateSetting('audioEnabled', value)}
         />
       </div>
+
+      {/* Max Recording Duration */}
+      <div className="py-4 border-b">
+        <h3 className="font-medium text-gray-800 mb-2">Maximum recording duration</h3>
+        <p className="text-sm text-gray-500 mb-2">
+          Automatically stop recording after this time
+        </p>
+        <select
+          value={settings.maxRecordingDuration}
+          onChange={(e) => updateSetting('maxRecordingDuration', Number(e.target.value))}
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+        >
+          <option value={0}>No limit</option>
+          <option value={60}>1 minute</option>
+          <option value={300}>5 minutes</option>
+          <option value={600}>10 minutes</option>
+          <option value={1800}>30 minutes</option>
+          <option value={3600}>1 hour</option>
+        </select>
+      </div>
+
+      {/* Countdown */}
+      <div className="flex items-center justify-between py-4 border-b">
+        <div>
+          <h3 className="font-medium text-gray-800">Show countdown before recording</h3>
+          <p className="text-sm text-gray-500">
+            Display a countdown before recording starts
+          </p>
+        </div>
+        <Toggle
+          checked={settings.countdownEnabled}
+          onChange={(value) => updateSetting('countdownEnabled', value)}
+        />
+      </div>
+
+      {/* Countdown Duration */}
+      {settings.countdownEnabled && (
+        <div className="py-4 border-b ml-6">
+          <h3 className="font-medium text-gray-800 mb-2">Countdown duration</h3>
+          <select
+            value={settings.countdownDuration}
+            onChange={(e) => updateSetting('countdownDuration', Number(e.target.value) as 3 | 5 | 10)}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+          >
+            <option value={3}>3 seconds</option>
+            <option value={5}>5 seconds</option>
+            <option value={10}>10 seconds</option>
+          </select>
+        </div>
+      )}
     </div>
   );
 }

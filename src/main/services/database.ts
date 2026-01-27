@@ -243,6 +243,12 @@ export function deleteCapture(id: number): void {
   saveDatabase();
 }
 
+export function updateCaptureFilename(id: number, newFilename: string, newFilepath: string): void {
+  const db = getDatabase();
+  db.run('UPDATE captures SET filename = ?, filepath = ? WHERE id = ?', [newFilename, newFilepath, id]);
+  saveDatabase();
+}
+
 // Tag operations
 export function getAllTags(): Tag[] {
   const db = getDatabase();

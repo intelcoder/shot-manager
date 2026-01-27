@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { format as formatDate } from 'date-fns';
 import { getSetting } from './settings';
-import { insertCapture, deleteCapture as dbDeleteCapture, getCaptureById } from './database';
+import { insertCapture, deleteCapture as dbDeleteCapture, getCaptureById, updateCaptureFilename } from './database';
 import type { CaptureType, CaptureResult } from '../../shared/types/capture';
 
 export interface SaveOptions {
@@ -152,6 +152,54 @@ export async function deleteFile(id: number): Promise<void> {
 
   // Delete from database
   dbDeleteCapture(id);
+}
+
+export async function renameFile(id: number, newFilename: string): Promise<{ success: boolean; error?: string; capture?: any }> {
+  const capture = getCaptureById(id);
+  if (!capture) {
+    return { success: false, error: 'File not found' };
+  }
+
+  // Validate filename
+  const invalidChars = /[<>:"/\\|?*\x00-\x1f]/g;
+  if (invalidChars.test(newFilename)) {
+    return { success: false, error: 'Filename contains invalid characters' };
+  }
+
+  if (!newFilename.trim()) {
+    return { success: false, error: 'Filename cannot be empty' };
+  }
+
+  // Preserve the original extension
+  const originalExt = path.extname(capture.filename);
+  const newNameWithoutExt = path.basename(newFilename, path.extname(newFilename));
+  const finalFilename = newNameWithoutExt + originalExt;
+
+  // Build new filepath
+  const dir = path.dirname(capture.filepath);
+  const newFilepath = path.join(dir, finalFilename);
+
+  // Check if file already exists
+  if (capture.filepath !== newFilepath && fs.existsSync(newFilepath)) {
+    return { success: false, error: 'A file with this name already exists' };
+  }
+
+  try {
+    // Rename file on disk
+    if (fs.existsSync(capture.filepath)) {
+      await fs.promises.rename(capture.filepath, newFilepath);
+    }
+
+    // Update database
+    updateCaptureFilename(id, finalFilename, newFilepath);
+
+    // Return updated capture
+    const updatedCapture = getCaptureById(id);
+    return { success: true, capture: updatedCapture };
+  } catch (error) {
+    console.error('[FileManager] Failed to rename file:', error);
+    return { success: false, error: 'Failed to rename file' };
+  }
 }
 
 export async function selectSavePath(): Promise<{ success: boolean; path?: string; error?: string }> {

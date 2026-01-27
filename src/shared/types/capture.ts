@@ -1,16 +1,18 @@
 export type CaptureType = 'screenshot' | 'video';
-export type CaptureMode = 'fullscreen' | 'area';
+export type CaptureMode = 'fullscreen' | 'area' | 'window';
 
 export interface ScreenshotOptions {
   mode: CaptureMode;
   displayId?: number;
   area?: SelectionArea;
+  windowId?: string; // for window capture
 }
 
 export interface RecordingOptions {
   mode: CaptureMode;
   displayId?: number;
   area?: SelectionArea;
+  windowId?: string; // for window capture
   audio: {
     enabled: boolean;
     deviceId?: string;

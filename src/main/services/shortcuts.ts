@@ -1,6 +1,7 @@
 import { globalShortcut, BrowserWindow } from 'electron';
 import Store from 'electron-store';
 import { SHORTCUT_ACTIONS, type ShortcutConfig } from '../../shared/types/settings';
+import { IPC_CHANNELS } from '../../shared/constants/channels';
 import { showMainWindow } from '../windows/main-window';
 import { createCaptureOverlay } from '../windows/capture-window';
 
@@ -153,6 +154,9 @@ class ShortcutManager {
       case 'record-area':
         this.triggerRecording('area');
         break;
+      case 'record-window':
+        this.triggerRecording('window');
+        break;
       case 'record-stop':
         this.stopRecording();
         break;
@@ -174,13 +178,19 @@ class ShortcutManager {
     }
   }
 
-  private triggerRecording(mode: 'fullscreen' | 'area'): void {
+  private triggerRecording(mode: 'fullscreen' | 'area' | 'window'): void {
     if (mode === 'area') {
       createCaptureOverlay('video');
+    } else if (mode === 'window') {
+      // Trigger window picker in renderer
+      const windows = BrowserWindow.getAllWindows();
+      windows.forEach((win) => {
+        win.webContents.send(IPC_CHANNELS.SHORTCUT_RECORD_WINDOW);
+      });
     } else {
       const windows = BrowserWindow.getAllWindows();
       windows.forEach((win) => {
-        win.webContents.send('shortcut:record-full');
+        win.webContents.send(IPC_CHANNELS.SHORTCUT_RECORD_FULL);
       });
     }
   }

@@ -9,6 +9,7 @@ export const IPC_CHANNELS = {
   // Files
   FILE_GET_ALL: 'file:get-all',
   FILE_DELETE: 'file:delete',
+  FILE_RENAME: 'file:rename',
   FILE_OPEN: 'file:open',
   FILE_OPEN_FOLDER: 'file:open-folder',
   FILE_GET_THUMBNAIL: 'file:get-thumbnail',
@@ -29,6 +30,8 @@ export const IPC_CHANNELS = {
   SHORTCUT_UPDATE: 'shortcut:update',
   SHORTCUT_RESET: 'shortcut:reset',
   SHORTCUT_GET_ALL: 'shortcut:get-all',
+  SHORTCUT_RECORD_WINDOW: 'shortcut:record-window',
+  SHORTCUT_RECORD_FULL: 'shortcut:record-full',
 
   // Window
   WINDOW_SHOW_DASHBOARD: 'window:show-dashboard',
@@ -46,6 +49,29 @@ export const IPC_CHANNELS = {
   ON_CAPTURE_COMPLETE: 'on:capture-complete',
   ON_RECORDING_STATUS: 'on:recording-status',
   ON_SHORTCUT_TRIGGERED: 'on:shortcut-triggered',
+  ON_PREVIEW_DATA: 'preview:data',
+
+  // Recording commands (main -> renderer)
+  RECORDING_START: 'recording:start',
+  RECORDING_STOP: 'recording:stop',
+  RECORDING_PAUSE: 'recording:pause',
+  RECORDING_RESUME: 'recording:resume',
+  RECORDING_DATA: 'recording:data',
+
+  // Countdown (main <-> renderer)
+  RECORDING_COUNTDOWN: 'recording:countdown',
+  RECORDING_COUNTDOWN_COMPLETE: 'recording:countdown-complete',
+  RECORDING_COUNTDOWN_CANCEL: 'recording:countdown-cancel',
+
+  // Recording overlay (main -> renderer)
+  OVERLAY_INIT: 'overlay:init',
+  OVERLAY_SWITCH_MODE: 'overlay:switch-mode',
+  OVERLAY_RECORDING_STATUS: 'overlay:recording-status',
+  OVERLAY_UPDATE: 'overlay:update',
+
+  // Area border overlay (main -> renderer)
+  AREA_BORDER_INIT: 'area-border:init',
+  AREA_BORDER_UPDATE: 'area-border:update',
 } as const;
 
 export type IpcChannel = typeof IPC_CHANNELS[keyof typeof IPC_CHANNELS];

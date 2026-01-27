@@ -14,6 +14,7 @@ interface CapturesState {
   loadTags: () => Promise<void>;
   setFilters: (filters: Partial<FileQueryOptions>) => void;
   deleteCapture: (id: number) => Promise<void>;
+  renameCapture: (id: number, newFilename: string) => Promise<{ success: boolean; error?: string; capture?: CaptureFile }>;
   addTagToCapture: (captureId: number, tagId: number) => Promise<void>;
   removeTagFromCapture: (captureId: number, tagId: number) => Promise<void>;
   createTag: (name: string) => Promise<Tag>;
@@ -67,23 +68,57 @@ export const useCapturesStore = create<CapturesState>((set, get) => ({
     }
   },
 
+  renameCapture: async (id, newFilename) => {
+    try {
+      const result = await window.electronAPI.renameFile(id, newFilename);
+      if (result.success && result.capture) {
+        set((state) => ({
+          captures: state.captures.map((c) =>
+            c.id === id ? { ...c, filename: result.capture!.filename, filepath: result.capture!.filepath } : c
+          ),
+        }));
+      }
+      return result;
+    } catch (error) {
+      console.error('Failed to rename capture:', error);
+      return { success: false, error: 'Failed to rename file' };
+    }
+  },
+
   addTagToCapture: async (captureId, tagId) => {
     try {
+      // Optimistic update: immediately add tag to local state
+      const tagToAdd = get().tags.find((t) => t.id === tagId);
+      if (tagToAdd) {
+        set((state) => ({
+          captures: state.captures.map((c) =>
+            c.id === captureId
+              ? { ...c, tags: [...c.tags, tagToAdd] }
+              : c
+          ),
+        }));
+      }
       await window.electronAPI.addTagToCapture(captureId, tagId);
-      // Refresh captures to get updated tags
-      get().loadCaptures();
     } catch (error) {
       console.error('Failed to add tag:', error);
+      get().loadCaptures(); // Rollback on error
     }
   },
 
   removeTagFromCapture: async (captureId, tagId) => {
     try {
+      // Optimistic update: immediately remove tag from local state
+      set((state) => ({
+        captures: state.captures.map((c) =>
+          c.id === captureId
+            ? { ...c, tags: c.tags.filter((t) => t.id !== tagId) }
+            : c
+        ),
+      }));
       await window.electronAPI.removeTagFromCapture(captureId, tagId);
-      // Refresh captures to get updated tags
-      get().loadCaptures();
     } catch (error) {
       console.error('Failed to remove tag:', error);
+      get().loadCaptures(); // Rollback on error
     }
   },
 

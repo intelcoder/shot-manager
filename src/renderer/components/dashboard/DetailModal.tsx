@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import TagEditor from './TagEditor';
+import { useCapturesStore } from '../../stores/captures-store';
 import type { CaptureFile } from '../../../shared/types/capture';
 
 interface DetailModalProps {
@@ -8,6 +9,7 @@ interface DetailModalProps {
   onDelete: (item: CaptureFile) => void;
   onOpenFile: (item: CaptureFile) => void;
   onShowInFolder: (item: CaptureFile) => void;
+  onItemUpdate?: (item: CaptureFile) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -26,8 +28,91 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder }: DetailModalProps) {
+function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder, onItemUpdate }: DetailModalProps) {
   const [imageError, setImageError] = useState(false);
+  const [isEditingFilename, setIsEditingFilename] = useState(false);
+  const [editedFilename, setEditedFilename] = useState('');
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const filenameInputRef = useRef<HTMLInputElement>(null);
+  const renameCapture = useCapturesStore((state) => state.renameCapture);
+
+  // Subscribe to store to get live capture data (for immediate tag updates)
+  const currentItem = useCapturesStore(
+    (state) => state.captures.find((c) => c.id === item.id) ?? item
+  );
+
+  // Get filename without extension for editing
+  const getFilenameWithoutExt = (filename: string) => {
+    const lastDot = filename.lastIndexOf('.');
+    return lastDot > 0 ? filename.substring(0, lastDot) : filename;
+  };
+
+  const getExtension = (filename: string) => {
+    const lastDot = filename.lastIndexOf('.');
+    return lastDot > 0 ? filename.substring(lastDot) : '';
+  };
+
+  const handleFilenameClick = () => {
+    setEditedFilename(getFilenameWithoutExt(currentItem.filename));
+    setIsEditingFilename(true);
+    setRenameError(null);
+  };
+
+  useEffect(() => {
+    if (isEditingFilename && filenameInputRef.current) {
+      filenameInputRef.current.focus();
+      filenameInputRef.current.select();
+    }
+  }, [isEditingFilename]);
+
+  const handleRename = async () => {
+    if (!editedFilename.trim()) {
+      setRenameError('Filename cannot be empty');
+      return;
+    }
+
+    const newFilename = editedFilename.trim() + getExtension(currentItem.filename);
+    if (newFilename === currentItem.filename) {
+      setIsEditingFilename(false);
+      return;
+    }
+
+    setIsRenaming(true);
+    setRenameError(null);
+
+    const result = await renameCapture(item.id, newFilename);
+
+    setIsRenaming(false);
+
+    if (result.success && result.capture) {
+      setIsEditingFilename(false);
+      onItemUpdate?.(result.capture);
+    } else {
+      setRenameError(result.error || 'Failed to rename file');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleRename();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsEditingFilename(false);
+      setRenameError(null);
+    }
+  };
+
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    setEditedFilename(e.target.value);
+  };
 
   return (
     <div
@@ -40,12 +125,41 @@ function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder }: De
       >
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="font-semibold text-gray-800 truncate" title={item.filename}>
-            {item.filename}
-          </h2>
+          <div className="flex-1 min-w-0 mr-4">
+            {isEditingFilename ? (
+              <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={filenameInputRef}
+                    type="text"
+                    value={editedFilename}
+                    onChange={handleInputChange}
+                    onClick={handleInputClick}
+                    onKeyDown={handleKeyDown}
+                    onBlur={handleRename}
+                    disabled={isRenaming}
+                    autoComplete="off"
+                    className="flex-1 font-semibold text-gray-800 px-2 py-1 border border-primary-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  />
+                  <span className="text-gray-500 text-sm">{getExtension(currentItem.filename)}</span>
+                </div>
+                {renameError && (
+                  <span className="text-red-500 text-xs">{renameError}</span>
+                )}
+              </div>
+            ) : (
+              <h2
+                className="font-semibold text-gray-800 truncate cursor-pointer hover:text-primary-600 transition-colors"
+                title={`${currentItem.filename} (click to rename)`}
+                onClick={handleFilenameClick}
+              >
+                {currentItem.filename}
+              </h2>
+            )}
+          </div>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
           >
             ✕
           </button>
@@ -53,16 +167,16 @@ function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder }: De
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4 bg-gray-50">
-          {item.type === 'video' ? (
+          {currentItem.type === 'video' ? (
             <video
-              src={`file://${item.filepath}`}
+              src={`file://${currentItem.filepath}`}
               controls
               className="w-full max-h-[60vh] bg-black rounded"
             />
           ) : !imageError ? (
             <img
-              src={`file://${item.filepath}`}
-              alt={item.filename}
+              src={`file://${currentItem.filepath}`}
+              alt={currentItem.filename}
               className="w-full max-h-[60vh] object-contain rounded"
               onError={() => setImageError(true)}
             />
@@ -79,29 +193,29 @@ function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder }: De
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
             <div>
               <span className="text-gray-500">Size:</span>{' '}
-              <span className="font-medium">{formatSize(item.size)}</span>
+              <span className="font-medium">{formatSize(currentItem.size)}</span>
             </div>
             <div>
               <span className="text-gray-500">Date:</span>{' '}
-              <span className="font-medium">{formatDate(item.created_at)}</span>
+              <span className="font-medium">{formatDate(currentItem.created_at)}</span>
             </div>
-            {item.width && item.height && (
+            {currentItem.width && currentItem.height && (
               <div>
                 <span className="text-gray-500">Dimensions:</span>{' '}
-                <span className="font-medium">{item.width} × {item.height}</span>
+                <span className="font-medium">{currentItem.width} × {currentItem.height}</span>
               </div>
             )}
-            {item.type === 'video' && item.duration && (
+            {currentItem.type === 'video' && currentItem.duration && (
               <div>
                 <span className="text-gray-500">Duration:</span>{' '}
-                <span className="font-medium">{formatDuration(item.duration)}</span>
+                <span className="font-medium">{formatDuration(currentItem.duration)}</span>
               </div>
             )}
           </div>
 
           {/* Tags */}
           <div className="mb-4">
-            <TagEditor capture={item} />
+            <TagEditor capture={currentItem} />
           </div>
 
           {/* Action Buttons */}
