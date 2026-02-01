@@ -5,6 +5,7 @@ import { showPreviewPopup } from '../windows/preview-window';
 import { closeCaptureOverlay } from '../windows/capture-window';
 import { showRecordingOverlay, updateRecordingOverlay, transitionToRecording, closeRecordingOverlay } from '../windows/recording-overlay-window';
 import { showAreaBorderOverlay, closeAreaBorderOverlay } from '../windows/area-border-window';
+import { getMainWindow } from '../windows/main-window';
 import { setTrayRecording } from '../tray';
 import { IPC_CHANNELS } from '../../shared/constants/channels';
 import type { RecordingOptions, CaptureResult, RecordingState, SelectionArea } from '../../shared/types/capture';
@@ -97,7 +98,7 @@ export async function startRecording(options: RecordingOptions): Promise<void> {
     showRecordingOverlay('countdown', countdownDuration);
 
     // Also notify main window for backwards compatibility
-    const mainWindow = BrowserWindow.getAllWindows()[0];
+    const mainWindow = getMainWindow();
     if (mainWindow) {
       mainWindow.webContents.send(IPC_CHANNELS.RECORDING_COUNTDOWN, {
         duration: countdownDuration,
@@ -155,10 +156,14 @@ function startRecordingImmediate(data: {
   }, 1000);
 
   // Send start signal to renderer with source info
-  const mainWindow = BrowserWindow.getAllWindows()[0];
+  const mainWindow = getMainWindow();
+  console.log('[Video] startRecordingImmediate - mainWindow exists:', !!mainWindow);
   if (mainWindow) {
     currentRecordingWindow = mainWindow;
+    console.log('[Video] Sending recording:start to renderer');
     mainWindow.webContents.send(IPC_CHANNELS.RECORDING_START, data);
+  } else {
+    console.error('[Video] No main window found, recording will not work');
   }
 
   broadcastRecordingStatus();
@@ -230,7 +235,10 @@ export function resumeRecording(): void {
 }
 
 export async function stopRecording(): Promise<CaptureResult | null> {
+  console.log('[Video] stopRecording called, isRecording:', recordingState.isRecording);
+
   if (!recordingState.isRecording) {
+    console.log('[Video] Not recording, returning null');
     return null;
   }
 
@@ -250,6 +258,7 @@ export async function stopRecording(): Promise<CaptureResult | null> {
   closeAreaBorderOverlay();
 
   const duration = recordingState.duration;
+  console.log('[Video] Recording duration:', duration);
 
   // Reset state
   recordingState = {
@@ -261,12 +270,16 @@ export async function stopRecording(): Promise<CaptureResult | null> {
 
   // Request video data from renderer
   return new Promise((resolve) => {
+    console.log('[Video] currentRecordingWindow exists:', !!currentRecordingWindow);
+
     if (currentRecordingWindow) {
       // Set up one-time listener for recording data
       const handler = async (_event: Electron.IpcMainEvent, data: { buffer: ArrayBuffer; width: number; height: number }) => {
+        console.log('[Video] Received recording:data, buffer size:', data?.buffer?.byteLength ?? 0);
         currentRecordingWindow = null;
 
-        if (!data || !data.buffer) {
+        if (!data || !data.buffer || data.buffer.byteLength === 0) {
+          console.error('[Video] No valid buffer received');
           broadcastRecordingStatus();
           resolve(null);
           return;
@@ -274,7 +287,9 @@ export async function stopRecording(): Promise<CaptureResult | null> {
 
         try {
           const buffer = Buffer.from(data.buffer);
+          console.log('[Video] Saving video, buffer length:', buffer.length);
           const result = await saveVideo(buffer, duration, data.width, data.height);
+          console.log('[Video] Video saved:', result?.filepath);
 
           // Show preview if enabled
           const showPreview = getSetting('showPreview');
@@ -292,7 +307,7 @@ export async function stopRecording(): Promise<CaptureResult | null> {
           broadcastRecordingStatus();
           resolve(result);
         } catch (error) {
-          console.error('Error saving video:', error);
+          console.error('[Video] Error saving video:', error);
           broadcastRecordingStatus();
           resolve(null);
         }
@@ -301,8 +316,10 @@ export async function stopRecording(): Promise<CaptureResult | null> {
       const { ipcMain } = require('electron');
       ipcMain.once('recording:data', handler);
 
+      console.log('[Video] Sending recording:stop to renderer');
       currentRecordingWindow.webContents.send('recording:stop');
     } else {
+      console.error('[Video] No currentRecordingWindow, cannot stop');
       broadcastRecordingStatus();
       resolve(null);
     }

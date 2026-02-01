@@ -31,6 +31,12 @@ import {
 import { previewCleanup, executeCleanup } from '../services/cleanup';
 import type { CreateCleanupRuleInput, UpdateCleanupRuleInput } from '../../shared/types/cleanup';
 import { getSettings, getSetting, setSetting, resetSettings } from '../services/settings';
+import {
+  getPermissionStatus,
+  requestMicrophonePermission,
+  openScreenRecordingSettings,
+  openMicrophoneSettings,
+} from '../services/permissions';
 import { shortcutManager } from '../services/shortcuts';
 import { deleteFile, openFile, showInFolder, selectSavePath, renameFile } from '../services/file-manager';
 import { showMainWindow, hideMainWindow } from '../windows/main-window';
@@ -196,6 +202,23 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_SELECT_SAVE_PATH, async () => {
     return selectSavePath();
+  });
+
+  // Permission handlers
+  ipcMain.handle(IPC_CHANNELS.PERMISSIONS_GET_STATUS, async () => {
+    return getPermissionStatus();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.PERMISSIONS_REQUEST_MICROPHONE, async () => {
+    return requestMicrophonePermission();
+  });
+
+  ipcMain.on(IPC_CHANNELS.PERMISSIONS_OPEN_SCREEN_SETTINGS, () => {
+    openScreenRecordingSettings();
+  });
+
+  ipcMain.on(IPC_CHANNELS.PERMISSIONS_OPEN_MICROPHONE_SETTINGS, () => {
+    openMicrophoneSettings();
   });
 
   // Shortcut handlers

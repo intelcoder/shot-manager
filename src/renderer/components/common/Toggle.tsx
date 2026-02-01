@@ -16,14 +16,14 @@ function Toggle({ checked, onChange, disabled }: ToggleProps) {
       onClick={() => onChange(!checked)}
       className={`
         relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-        focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-        ${checked ? 'bg-primary-500' : 'bg-gray-200'}
+        focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 dark:focus:ring-offset-surface-primary
+        ${checked ? 'bg-accent' : 'bg-surface-tertiary'}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       `}
     >
       <span
         className={`
-          inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+          inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform
           ${checked ? 'translate-x-6' : 'translate-x-1'}
         `}
       />

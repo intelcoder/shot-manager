@@ -11,6 +11,14 @@ import type { AppSettings, ShortcutConfig } from './settings';
 import type { Folder, FolderTree, CreateFolderInput, UpdateFolderInput } from './folder';
 import type { CleanupRule, CreateCleanupRuleInput, UpdateCleanupRuleInput, CleanupPreview, CleanupResult, CleanupHistoryEntry } from './cleanup';
 
+export type PermissionState = 'granted' | 'denied' | 'not-determined' | 'not-applicable' | 'restricted';
+
+export interface PermissionStatus {
+  screen: PermissionState;
+  microphone: PermissionState;
+  platform: 'darwin' | 'win32' | 'linux';
+}
+
 export interface FileQueryOptions {
   type?: 'screenshot' | 'video' | 'all';
   dateRange?: 'today' | 'week' | 'month' | 'all';
@@ -139,6 +147,12 @@ export interface ElectronAPI {
   getSettings: () => Promise<AppSettings>;
   setSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => Promise<void>;
   selectSavePath: () => Promise<{ success: boolean; path?: string; error?: string }>;
+
+  // Permissions
+  getPermissionStatus: () => Promise<PermissionStatus>;
+  requestMicrophonePermission: () => Promise<PermissionState>;
+  openScreenRecordingSettings: () => void;
+  openMicrophoneSettings: () => void;
 
   // Shortcuts
   getShortcuts: () => Promise<ShortcutConfig>;

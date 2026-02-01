@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, protocol, net } from 'electron';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { createMainWindow, getMainWindow, showMainWindow } from './windows/main-window';
 import { createTray } from './tray';
 import { registerIpcHandlers } from './ipc/handlers';
@@ -10,7 +11,28 @@ import { initCleanupScheduler, stopCleanupScheduler } from './services/cleanup-s
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// Register custom protocol for serving local files securely
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'local-file',
+    privileges: {
+      secure: true,
+      supportFetchAPI: true,
+      bypassCSP: false,
+      stream: true,
+    },
+  },
+]);
+
 async function initialize() {
+  // Register protocol handler for local files
+  protocol.handle('local-file', (request) => {
+    // Extract the file path from the URL
+    // URL format: local-file:///path/to/file
+    const filePath = decodeURIComponent(request.url.slice('local-file://'.length));
+    return net.fetch(pathToFileURL(filePath).href);
+  });
+
   // Initialize services
   await initDatabase();
   await initSettings();

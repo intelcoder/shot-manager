@@ -9,13 +9,13 @@ function CaptureSettings() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <h2 className="text-xl font-semibold text-gray-800">Capture</h2>
+      <h2 className="text-xl font-semibold text-content-primary">Capture</h2>
 
       {/* Play Sound */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b border-border">
         <div>
-          <h3 className="font-medium text-gray-800">Play sound</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-medium text-content-primary">Play sound</h3>
+          <p className="text-sm text-content-tertiary">
             Play a camera shutter sound when capturing
           </p>
         </div>
@@ -26,10 +26,10 @@ function CaptureSettings() {
       </div>
 
       {/* Show Preview */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b border-border">
         <div>
-          <h3 className="font-medium text-gray-800">Show preview</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-medium text-content-primary">Show preview</h3>
+          <p className="text-sm text-content-tertiary">
             Display a popup preview after capture
           </p>
         </div>
@@ -41,12 +41,12 @@ function CaptureSettings() {
 
       {/* Preview Duration */}
       {settings.showPreview && (
-        <div className="py-4 border-b ml-6">
-          <h3 className="font-medium text-gray-800 mb-2">Preview duration</h3>
+        <div className="py-4 border-b border-border ml-6">
+          <h3 className="font-medium text-content-primary mb-2">Preview duration</h3>
           <select
             value={settings.previewDuration}
             onChange={(e) => updateSetting('previewDuration', Number(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+            className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-surface-primary text-content-primary"
           >
             <option value={3}>3 seconds</option>
             <option value={5}>5 seconds</option>
@@ -56,10 +56,10 @@ function CaptureSettings() {
       )}
 
       {/* Copy to Clipboard */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b border-border">
         <div>
-          <h3 className="font-medium text-gray-800">Copy to clipboard</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-medium text-content-primary">Copy to clipboard</h3>
+          <p className="text-sm text-content-tertiary">
             Automatically copy screenshots to clipboard
           </p>
         </div>
@@ -69,15 +69,15 @@ function CaptureSettings() {
         />
       </div>
 
-      <h3 className="text-lg font-semibold text-gray-800 pt-4">Video Recording</h3>
+      <h3 className="text-lg font-semibold text-content-primary pt-4">Video Recording</h3>
 
       {/* Video Quality */}
-      <div className="py-4 border-b">
-        <h3 className="font-medium text-gray-800 mb-2">Video quality</h3>
+      <div className="py-4 border-b border-border">
+        <h3 className="font-medium text-content-primary mb-2">Video quality</h3>
         <select
           value={settings.videoQuality}
           onChange={(e) => updateSetting('videoQuality', e.target.value as 'low' | 'medium' | 'high')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-surface-primary text-content-primary"
         >
           <option value="low">Low (720p, smaller files)</option>
           <option value="medium">Medium (1080p)</option>
@@ -86,10 +86,10 @@ function CaptureSettings() {
       </div>
 
       {/* Audio */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b border-border">
         <div>
-          <h3 className="font-medium text-gray-800">Enable audio by default</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-medium text-content-primary">Enable audio by default</h3>
+          <p className="text-sm text-content-tertiary">
             Record microphone audio with video
           </p>
         </div>
@@ -100,15 +100,15 @@ function CaptureSettings() {
       </div>
 
       {/* Max Recording Duration */}
-      <div className="py-4 border-b">
-        <h3 className="font-medium text-gray-800 mb-2">Maximum recording duration</h3>
-        <p className="text-sm text-gray-500 mb-2">
+      <div className="py-4 border-b border-border">
+        <h3 className="font-medium text-content-primary mb-2">Maximum recording duration</h3>
+        <p className="text-sm text-content-tertiary mb-2">
           Automatically stop recording after this time
         </p>
         <select
           value={settings.maxRecordingDuration}
           onChange={(e) => updateSetting('maxRecordingDuration', Number(e.target.value))}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+          className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-surface-primary text-content-primary"
         >
           <option value={0}>No limit</option>
           <option value={60}>1 minute</option>
@@ -120,10 +120,10 @@ function CaptureSettings() {
       </div>
 
       {/* Countdown */}
-      <div className="flex items-center justify-between py-4 border-b">
+      <div className="flex items-center justify-between py-4 border-b border-border">
         <div>
-          <h3 className="font-medium text-gray-800">Show countdown before recording</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-medium text-content-primary">Show countdown before recording</h3>
+          <p className="text-sm text-content-tertiary">
             Display a countdown before recording starts
           </p>
         </div>
@@ -135,12 +135,12 @@ function CaptureSettings() {
 
       {/* Countdown Duration */}
       {settings.countdownEnabled && (
-        <div className="py-4 border-b ml-6">
-          <h3 className="font-medium text-gray-800 mb-2">Countdown duration</h3>
+        <div className="py-4 border-b border-border ml-6">
+          <h3 className="font-medium text-content-primary mb-2">Countdown duration</h3>
           <select
             value={settings.countdownDuration}
             onChange={(e) => updateSetting('countdownDuration', Number(e.target.value) as 3 | 5 | 10)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+            className="px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-surface-primary text-content-primary"
           >
             <option value={3}>3 seconds</option>
             <option value={5}>5 seconds</option>

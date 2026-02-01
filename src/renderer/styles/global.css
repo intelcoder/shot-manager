@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Light mode */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f5f5f7;
+  --surface-tertiary: #e8e8ed;
+  --content-primary: #1d1d1f;
+  --content-secondary: #6e6e73;
+  --content-tertiary: #86868b;
+  --accent: #007aff;
+  --accent-hover: #0066d6;
+  --accent-subtle: rgba(0, 122, 255, 0.1);
+  --border: rgba(0, 0, 0, 0.1);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  /* Dark mode */
+  --surface-primary: #1c1c1e;
+  --surface-secondary: #2c2c2e;
+  --surface-tertiary: #3a3a3c;
+  --content-primary: #f5f5f7;
+  --content-secondary: #a1a1a6;
+  --content-tertiary: #6e6e73;
+  --accent: #0a84ff;
+  --accent-hover: #409cff;
+  --accent-subtle: rgba(10, 132, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -12,25 +42,27 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface-primary);
+  color: var(--content-primary);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Light mode */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--surface-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--content-tertiary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--content-secondary);
 }
 
 /* Electron drag regions */
@@ -52,8 +84,8 @@ body {
 /* Selection box */
 .selection-box {
   position: absolute;
-  border: 2px solid #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  border: 2px solid var(--accent);
+  background: var(--accent-subtle);
 }
 
 /* Recording indicator */
@@ -68,4 +100,24 @@ body {
   50% {
     opacity: 0.5;
   }
+}
+
+/* Glass effect utility */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .glass {
+  background: rgba(44, 44, 46, 0.8);
+}
+
+/* Focus ring utility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+}
+
+.dark .focus-ring {
+  @apply focus:ring-offset-surface-primary;
 }

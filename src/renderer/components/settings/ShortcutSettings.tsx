@@ -39,33 +39,33 @@ function ShortcutSettings() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-800">Keyboard Shortcuts</h2>
+        <h2 className="text-xl font-semibold text-content-primary">Keyboard Shortcuts</h2>
         <button
           onClick={handleReset}
-          className="text-sm text-primary-600 hover:text-primary-700"
+          className="text-sm text-accent hover:text-accent-hover"
         >
           Reset to Defaults
         </button>
       </div>
 
       {error && (
-        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div className="p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-lg text-sm">
           {error}
         </div>
       )}
 
       {/* Capture Shortcuts */}
       <section>
-        <h3 className="font-semibold text-gray-700 mb-3">Capture</h3>
+        <h3 className="font-semibold text-content-secondary mb-3">Capture</h3>
         <div className="space-y-3">
           {groupedActions.capture.map((action) => (
             <div
               key={action.id}
-              className="flex items-center justify-between py-3 border-b"
+              className="flex items-center justify-between py-3 border-b border-border"
             >
               <div>
-                <h4 className="font-medium text-gray-800">{action.label}</h4>
-                <p className="text-sm text-gray-500">{action.description}</p>
+                <h4 className="font-medium text-content-primary">{action.label}</h4>
+                <p className="text-sm text-content-tertiary">{action.description}</p>
               </div>
               <ShortcutInput
                 value={shortcuts[action.id] || ''}
@@ -78,16 +78,16 @@ function ShortcutSettings() {
 
       {/* Recording Shortcuts */}
       <section>
-        <h3 className="font-semibold text-gray-700 mb-3">Recording</h3>
+        <h3 className="font-semibold text-content-secondary mb-3">Recording</h3>
         <div className="space-y-3">
           {groupedActions.recording.map((action) => (
             <div
               key={action.id}
-              className="flex items-center justify-between py-3 border-b"
+              className="flex items-center justify-between py-3 border-b border-border"
             >
               <div>
-                <h4 className="font-medium text-gray-800">{action.label}</h4>
-                <p className="text-sm text-gray-500">{action.description}</p>
+                <h4 className="font-medium text-content-primary">{action.label}</h4>
+                <p className="text-sm text-content-tertiary">{action.description}</p>
               </div>
               <ShortcutInput
                 value={shortcuts[action.id] || ''}
@@ -100,16 +100,16 @@ function ShortcutSettings() {
 
       {/* App Shortcuts */}
       <section>
-        <h3 className="font-semibold text-gray-700 mb-3">Application</h3>
+        <h3 className="font-semibold text-content-secondary mb-3">Application</h3>
         <div className="space-y-3">
           {groupedActions.app.map((action) => (
             <div
               key={action.id}
-              className="flex items-center justify-between py-3 border-b"
+              className="flex items-center justify-between py-3 border-b border-border"
             >
               <div>
-                <h4 className="font-medium text-gray-800">{action.label}</h4>
-                <p className="text-sm text-gray-500">{action.description}</p>
+                <h4 className="font-medium text-content-primary">{action.label}</h4>
+                <p className="text-sm text-content-tertiary">{action.description}</p>
               </div>
               <ShortcutInput
                 value={shortcuts[action.id] || ''}

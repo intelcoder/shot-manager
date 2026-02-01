@@ -87,6 +87,16 @@ const electronAPI: ElectronAPI = {
   selectSavePath: () =>
     ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_SELECT_SAVE_PATH),
 
+  // Permissions
+  getPermissionStatus: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.PERMISSIONS_GET_STATUS),
+  requestMicrophonePermission: () =>
+    ipcRenderer.invoke(IPC_CHANNELS.PERMISSIONS_REQUEST_MICROPHONE),
+  openScreenRecordingSettings: () =>
+    ipcRenderer.send(IPC_CHANNELS.PERMISSIONS_OPEN_SCREEN_SETTINGS),
+  openMicrophoneSettings: () =>
+    ipcRenderer.send(IPC_CHANNELS.PERMISSIONS_OPEN_MICROPHONE_SETTINGS),
+
   // Shortcuts
   getShortcuts: () =>
     ipcRenderer.invoke(IPC_CHANNELS.SHORTCUT_GET_ALL),

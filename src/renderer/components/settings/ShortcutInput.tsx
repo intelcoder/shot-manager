@@ -120,22 +120,22 @@ function ShortcutInput({ value, onChange, disabled }: ShortcutInputProps) {
       onBlur={handleBlur}
       className={`
         min-w-[180px] px-3 py-2 border rounded-lg text-sm cursor-pointer
-        flex items-center justify-between gap-2
+        flex items-center justify-between gap-2 bg-surface-primary
         ${isRecording
-          ? 'border-primary-500 ring-2 ring-primary-200 bg-primary-50'
-          : 'border-gray-300 hover:border-gray-400'
+          ? 'border-accent ring-2 ring-accent/20 bg-accent-subtle'
+          : 'border-border hover:border-content-tertiary'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
       `}
     >
-      <span className={isRecording ? 'text-primary-600' : value ? 'text-gray-800' : 'text-gray-400'}>
+      <span className={isRecording ? 'text-accent' : value ? 'text-content-primary' : 'text-content-tertiary'}>
         {displayValue}
       </span>
 
       {value && !isRecording && (
         <button
           onClick={handleClear}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-content-tertiary hover:text-content-secondary"
         >
           ✕
         </button>

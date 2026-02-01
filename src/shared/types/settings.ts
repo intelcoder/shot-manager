@@ -1,4 +1,8 @@
 export interface AppSettings {
+  // Setup
+  setupCompleted: boolean;
+  permissionsSkipped: boolean;
+
   // General
   launchAtStartup: boolean;
   showInMenuBar: boolean;
@@ -93,6 +97,8 @@ export const SHORTCUT_ACTIONS: ShortcutAction[] = [
 ];
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  setupCompleted: false,
+  permissionsSkipped: false,
   launchAtStartup: false,
   showInMenuBar: true,
   showInTaskbar: true,

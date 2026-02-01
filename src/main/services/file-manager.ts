@@ -83,10 +83,19 @@ export async function saveScreenshot(image: Electron.NativeImage): Promise<Captu
 }
 
 export async function saveVideo(buffer: Buffer, duration: number, width: number, height: number): Promise<CaptureResult> {
-  const savePath = getSetting('savePath');
-  const prefix = getSetting('filePrefix');
-  const videoFormat = getSetting('videoFormat');
-  const style = getSetting('organizationStyle');
+  let savePath = getSetting('savePath');
+  const prefix = getSetting('filePrefix') || 'Recording';
+  const videoFormat = getSetting('videoFormat') || 'webm';
+  const style = getSetting('organizationStyle') || 'date';
+
+  // Ensure savePath is valid, use default if empty
+  if (!savePath) {
+    const { app } = require('electron');
+    savePath = path.join(app.getPath('videos'), 'Shot Manager');
+    console.log('[FileManager] savePath was empty, using default:', savePath);
+  }
+
+  console.log('[FileManager] saveVideo settings:', { savePath, prefix, videoFormat, style, bufferSize: buffer.length });
 
   const now = new Date();
   const folder = ensureSaveFolder(savePath, now, style);
@@ -94,7 +103,9 @@ export async function saveVideo(buffer: Buffer, duration: number, width: number,
   const filename = getUniqueFilename(folder, baseFilename);
   const filepath = path.join(folder, filename);
 
+  console.log('[FileManager] Saving video to:', filepath);
   await fs.promises.writeFile(filepath, buffer);
+  console.log('[FileManager] Video saved successfully');
 
   const stats = await fs.promises.stat(filepath);
 

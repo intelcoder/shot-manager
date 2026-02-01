@@ -114,8 +114,8 @@ function CleanupSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900">Auto-Cleanup Rules</h3>
-        <p className="text-sm text-gray-500 mt-1">
+        <h3 className="text-lg font-medium text-content-primary">Auto-Cleanup Rules</h3>
+        <p className="text-sm text-content-tertiary mt-1">
           Configure rules to automatically delete old captures based on age, star status, and tags.
         </p>
       </div>
@@ -124,25 +124,25 @@ function CleanupSettings() {
       {lastResult && (
         <div
           className={`p-4 rounded-lg ${
-            lastResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+            lastResult.success ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'
           }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className={`font-medium ${lastResult.success ? 'text-green-800' : 'text-red-800'}`}>
+              <p className={`font-medium ${lastResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {lastResult.success ? 'Cleanup completed' : 'Cleanup completed with errors'}
               </p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-content-secondary mt-1">
                 Deleted {lastResult.deletedCount} item{lastResult.deletedCount !== 1 ? 's' : ''}, freed{' '}
                 {formatBytes(lastResult.freedBytes)}
               </p>
               {lastResult.errors.length > 0 && (
-                <p className="text-sm text-red-600 mt-1">{lastResult.errors.length} error(s) occurred</p>
+                <p className="text-sm text-red-600 dark:text-red-400 mt-1">{lastResult.errors.length} error(s) occurred</p>
               )}
             </div>
             <button
               onClick={clearLastResult}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-content-tertiary hover:text-content-secondary"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -155,9 +155,9 @@ function CleanupSettings() {
       {/* Rules list */}
       <div className="space-y-3">
         {rules.length === 0 ? (
-          <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+          <div className="text-center py-8 bg-surface-secondary rounded-lg border-2 border-dashed border-border">
             <svg
-              className="w-12 h-12 mx-auto text-gray-400 mb-3"
+              className="w-12 h-12 mx-auto text-content-tertiary mb-3"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -169,8 +169,8 @@ function CleanupSettings() {
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
               />
             </svg>
-            <p className="text-gray-500 mb-2">No cleanup rules configured</p>
-            <p className="text-sm text-gray-400">Create a rule to automatically clean up old captures</p>
+            <p className="text-content-secondary mb-2">No cleanup rules configured</p>
+            <p className="text-sm text-content-tertiary">Create a rule to automatically clean up old captures</p>
           </div>
         ) : (
           rules.map((rule) => (
@@ -191,7 +191,7 @@ function CleanupSettings() {
       {/* Add rule button */}
       <button
         onClick={handleCreateRule}
-        className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -201,11 +201,11 @@ function CleanupSettings() {
 
       {/* History section */}
       {history.length > 0 && (
-        <div className="mt-8 pt-6 border-t">
-          <h4 className="text-sm font-medium text-gray-700 mb-3">Cleanup History</h4>
+        <div className="mt-8 pt-6 border-t border-border">
+          <h4 className="text-sm font-medium text-content-secondary mb-3">Cleanup History</h4>
           <div className="space-y-2">
             {history.slice(0, 10).map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between text-sm text-gray-600">
+              <div key={entry.id} className="flex items-center justify-between text-sm text-content-secondary">
                 <span>
                   {formatDate(entry.executedAt)}: {entry.ruleName}
                 </span>

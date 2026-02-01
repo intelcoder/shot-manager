@@ -14,6 +14,17 @@ interface AreaBorderData {
 function AreaBorderOverlay() {
   const [data, setData] = useState<AreaBorderData | null>(null);
 
+  // Make body transparent so desktop shows through on macOS
+  useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'transparent';
+    document.documentElement.style.backgroundColor = 'transparent';
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
+
   useEffect(() => {
     // Listen for initial area data
     const unsubscribeInit = window.electronAPI?.onAreaBorderInit((initData) => {

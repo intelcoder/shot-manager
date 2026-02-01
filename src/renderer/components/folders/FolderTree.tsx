@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Plus, Archive, FolderClosed } from 'lucide-react';
 import { useFoldersStore } from '../../stores/folders-store';
 import { useCapturesStore } from '../../stores/captures-store';
 import FolderItem from './FolderItem';
@@ -59,17 +60,15 @@ function FolderTree() {
   };
 
   return (
-    <div className="p-4 border-b">
+    <div className="p-4 border-b border-border">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase">Folders</h3>
+        <h3 className="text-xs font-semibold text-content-tertiary uppercase">Folders</h3>
         <button
           onClick={() => setShowNewFolderDialog(true)}
-          className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+          className="p-1 text-content-tertiary hover:text-content-primary hover:bg-surface-tertiary rounded transition-colors"
           title="New Folder"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus size={16} strokeWidth={1.5} />
         </button>
       </div>
 
@@ -84,22 +83,15 @@ function FolderTree() {
           onDragLeave={() => setIsDragOverAll(false)}
           className={`w-full text-left px-2 py-1.5 rounded-md text-sm flex items-center gap-2 transition-colors ${
             currentFolderId === 'all'
-              ? 'bg-primary-100 text-primary-700'
+              ? 'bg-accent-subtle text-accent'
               : isDragOverAll
-                ? 'bg-gray-50'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? 'bg-surface-tertiary'
+                : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary'
           }`}
         >
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            />
-          </svg>
+          <Archive size={16} strokeWidth={1.5} className="text-content-tertiary" />
           <span className="flex-1">All Captures</span>
-          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+          <span className="text-xs text-content-tertiary bg-surface-tertiary px-1.5 py-0.5 rounded-full">
             {totalCount}
           </span>
         </button>
@@ -124,23 +116,16 @@ function FolderTree() {
           onDrop={handleDropOnUncategorized}
           className={`w-full text-left px-2 py-1.5 rounded-md text-sm flex items-center gap-2 transition-colors ${
             currentFolderId === 'uncategorized'
-              ? 'bg-primary-100 text-primary-700'
+              ? 'bg-accent-subtle text-accent'
               : isDragOverUncategorized
-                ? 'bg-primary-50 ring-2 ring-primary-300'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? 'bg-accent-subtle ring-2 ring-accent'
+                : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary'
           }`}
         >
-          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-            />
-          </svg>
+          <FolderClosed size={16} strokeWidth={1.5} className="text-content-tertiary" />
           <span className="flex-1">Uncategorized</span>
           {uncategorizedCount > 0 && (
-            <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+            <span className="text-xs text-content-tertiary bg-surface-tertiary px-1.5 py-0.5 rounded-full">
               {uncategorizedCount}
             </span>
           )}
