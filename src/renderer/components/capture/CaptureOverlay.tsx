@@ -61,6 +61,31 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
       ...prev,
       isSelecting: false,
     }));
+
+    // For screenshots, capture immediately on mouse up
+    if (mode === 'screenshot') {
+      const startPoint = selection.startPoint;
+      const endPoint = selection.endPoint;
+      if (!startPoint || !endPoint) return;
+
+      const x = Math.min(startPoint.x, endPoint.x);
+      const y = Math.min(startPoint.y, endPoint.y);
+      const width = Math.abs(endPoint.x - startPoint.x);
+      const height = Math.abs(endPoint.y - startPoint.y);
+
+      if (width < 10 || height < 10) return;
+
+      setIsCapturing(true);
+      window.electronAPI.takeScreenshot({
+        mode: 'area',
+        area: { x, y, width, height },
+      }).then(() => {
+        onComplete();
+      }).catch((error: unknown) => {
+        console.error('Capture failed:', error);
+        setIsCapturing(false);
+      });
+    }
   };
 
   const handleCapture = async () => {
@@ -93,7 +118,7 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
-      } else if (e.key === 'Enter') {
+      } else if (e.key === 'Enter' && mode === 'video') {
         handleCapture();
       }
     };
@@ -126,7 +151,7 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
       )}
 
       {/* Dimensions display */}
-      {area && !selection.isSelecting && (
+      {area && !selection.isSelecting && mode === 'video' && (
         <div
           className="absolute bg-black/80 text-white text-sm px-3 py-1 rounded pointer-events-none"
           style={{
@@ -140,7 +165,7 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
       )}
 
       {/* Controls */}
-      {area && !selection.isSelecting && (
+      {area && !selection.isSelecting && mode === 'video' && (
         <div
           className="absolute flex gap-2 pointer-events-auto"
           style={{
@@ -155,13 +180,7 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
             disabled={isCapturing}
             className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 flex items-center gap-2"
           >
-            {isCapturing ? (
-              'Capturing...'
-            ) : mode === 'screenshot' ? (
-              <>📷 Capture</>
-            ) : (
-              <>⏺️ Start Recording</>
-            )}
+            {isCapturing ? 'Starting...' : <>⏺️ Start Recording</>}
           </button>
           <button
             onMouseDown={(e) => e.stopPropagation()}
@@ -176,11 +195,13 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
       {/* Instructions */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 text-white text-sm px-4 py-2 rounded">
         {selection.isSelecting ? (
-          'Release to set selection area'
-        ) : area ? (
-          'Press Enter to capture • Escape to cancel'
+          'Release to capture'
+        ) : mode === 'video' && area ? (
+          'Press Enter to start recording • Escape to cancel'
         ) : (
-          'Click and drag to select area • Escape to cancel'
+          mode === 'screenshot'
+            ? 'Click and drag to capture area • Escape to cancel'
+            : 'Click and drag to select area • Escape to cancel'
         )}
       </div>
     </div>
