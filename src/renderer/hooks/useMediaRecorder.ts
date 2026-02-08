@@ -11,7 +11,7 @@ interface MediaRecorderState {
   area?: SelectionArea;
 }
 
-export function useMediaRecorder() {
+export function useMediaRecorder(enabled: boolean = true) {
   const stateRef = useRef<MediaRecorderState>({
     mediaRecorder: null,
     mediaStream: null,
@@ -179,6 +179,8 @@ export function useMediaRecorder() {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
+
     // Set up IPC listeners for recording commands
     const unsubscribeStart = window.electronAPI?.onRecordingStart((data) => {
       console.log('Received recording:start', data);
@@ -207,7 +209,7 @@ export function useMediaRecorder() {
       unsubscribeResume?.();
       cleanup();
     };
-  }, [startRecording, handleStop, handlePause, handleResume, cleanup]);
+  }, [enabled, startRecording, handleStop, handlePause, handleResume, cleanup]);
 }
 
 function getVideoConstraints(

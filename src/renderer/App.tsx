@@ -20,8 +20,8 @@ function App() {
   const setRecordingState = useRecordingStore((state) => state.setRecordingState);
   const { isCountingDown, countdownData, setCountdownState, startRecording } = useRecordingStore();
 
-  // Initialize MediaRecorder listeners for video recording
-  useMediaRecorder();
+  // Initialize MediaRecorder listeners for video recording (only in dashboard window)
+  useMediaRecorder(route === 'dashboard');
 
   // Handle countdown complete
   const handleCountdownComplete = useCallback(() => {
