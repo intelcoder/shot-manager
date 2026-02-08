@@ -1,16 +1,12 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { CaptureResult } from '../../../shared/types/capture';
+import { toFileUrl } from '../../utils/file-url';
 
 // Swipe gesture constants
 const SWIPE = {
   DISMISS_THRESHOLD: 100,
   OPACITY_DISTANCE: 200,
 } as const;
-
-function toFileUrl(filepath: string): string {
-  const normalized = filepath.replace(/\\/g, '/');
-  return `file:///${normalized.replace(/^\/+/, '')}`;
-}
 
 interface PreviewPopupProps {
   data: CaptureResult | null;

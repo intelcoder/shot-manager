@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import TagEditor from './TagEditor';
 import { useCapturesStore } from '../../stores/captures-store';
 import type { CaptureFile } from '../../../shared/types/capture';
+import { toFileUrl } from '../../utils/file-url';
 
 interface DetailModalProps {
   item: CaptureFile;
@@ -169,13 +170,13 @@ function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder, onIt
         <div className="flex-1 overflow-auto p-4 bg-gray-50">
           {currentItem.type === 'video' ? (
             <video
-              src={`file://${currentItem.filepath}`}
+              src={toFileUrl(currentItem.filepath)}
               controls
               className="w-full max-h-[60vh] bg-black rounded"
             />
           ) : !imageError ? (
             <img
-              src={`file://${currentItem.filepath}`}
+              src={toFileUrl(currentItem.filepath)}
               alt={currentItem.filename}
               className="w-full max-h-[60vh] object-contain rounded"
               onError={() => setImageError(true)}

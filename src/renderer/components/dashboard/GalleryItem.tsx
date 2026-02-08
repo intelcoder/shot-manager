@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { CaptureFile } from '../../../shared/types/capture';
 import { useCapturesStore } from '../../stores/captures-store';
+import { toFileUrl } from '../../utils/file-url';
 
 interface GalleryItemProps {
   item: CaptureFile;
@@ -27,9 +28,9 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
   };
 
   const imageSrc = item.thumbnail_path
-    ? `file://${item.thumbnail_path}`
+    ? toFileUrl(item.thumbnail_path)
     : item.type === 'screenshot'
-    ? `file://${item.filepath}`
+    ? toFileUrl(item.filepath)
     : undefined;
 
   const handleClick = (e: React.MouseEvent) => {
