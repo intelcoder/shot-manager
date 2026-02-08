@@ -244,12 +244,6 @@ export async function stopRecording(): Promise<CaptureResult | null> {
   // Update tray
   setTrayRecording(false);
 
-  // Close recording overlay
-  closeRecordingOverlay();
-
-  // Close area border overlay
-  closeAreaBorderOverlay();
-
   const duration = recordingState.duration;
 
   // Reset state
@@ -260,12 +254,16 @@ export async function stopRecording(): Promise<CaptureResult | null> {
     startTime: null,
   };
 
-  // Request video data from renderer
+  // Request video data from renderer BEFORE closing overlay windows
   return new Promise((resolve) => {
     if (currentRecordingWindow) {
       // Set up one-time listener for recording data
       const handler = async (_event: Electron.IpcMainEvent, data: { buffer: ArrayBuffer; width: number; height: number }) => {
         currentRecordingWindow = null;
+
+        // Close overlay windows after data is received
+        closeRecordingOverlay();
+        closeAreaBorderOverlay();
 
         if (!data || !data.buffer) {
           broadcastRecordingStatus();
@@ -302,8 +300,12 @@ export async function stopRecording(): Promise<CaptureResult | null> {
       const { ipcMain } = require('electron');
       ipcMain.once('recording:data', handler);
 
+      // Send stop signal while window is still alive
       currentRecordingWindow.webContents.send('recording:stop');
     } else {
+      // No recording window — clean up overlays anyway
+      closeRecordingOverlay();
+      closeAreaBorderOverlay();
       broadcastRecordingStatus();
       resolve(null);
     }
