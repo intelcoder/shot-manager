@@ -3,6 +3,7 @@ import { saveVideo } from '../services/file-manager';
 import { getSetting } from '../services/settings';
 import { showPreviewPopup } from '../windows/preview-window';
 import { closeCaptureOverlay } from '../windows/capture-window';
+import { getMainWindow } from '../windows/main-window';
 import { showRecordingOverlay, updateRecordingOverlay, transitionToRecording, closeRecordingOverlay } from '../windows/recording-overlay-window';
 import { showAreaBorderOverlay, closeAreaBorderOverlay } from '../windows/area-border-window';
 import { setTrayRecording } from '../tray';
@@ -97,7 +98,7 @@ export async function startRecording(options: RecordingOptions): Promise<void> {
     showRecordingOverlay('countdown', countdownDuration);
 
     // Also notify main window for backwards compatibility
-    const mainWindow = BrowserWindow.getAllWindows()[0];
+    const mainWindow = getMainWindow();
     if (mainWindow) {
       mainWindow.webContents.send(IPC_CHANNELS.RECORDING_COUNTDOWN, {
         duration: countdownDuration,
@@ -155,7 +156,7 @@ function startRecordingImmediate(data: {
   }, 1000);
 
   // Send start signal to renderer with source info
-  const mainWindow = BrowserWindow.getAllWindows()[0];
+  const mainWindow = getMainWindow();
   if (mainWindow) {
     currentRecordingWindow = mainWindow;
     mainWindow.webContents.send(IPC_CHANNELS.RECORDING_START, data);
