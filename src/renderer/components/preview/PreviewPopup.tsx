@@ -7,6 +7,11 @@ const SWIPE = {
   OPACITY_DISTANCE: 200,
 } as const;
 
+function toFileUrl(filepath: string): string {
+  const normalized = filepath.replace(/\\/g, '/');
+  return `file:///${normalized.replace(/^\/+/, '')}`;
+}
+
 interface PreviewPopupProps {
   data: CaptureResult | null;
   onDismiss: () => void;
@@ -115,7 +120,7 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
           </div>
         ) : data.type === 'video' ? (
           <video
-            src={`file://${data.filepath}`}
+            src={toFileUrl(data.filepath)}
             className="w-full h-full object-cover cursor-pointer"
             onClick={handleOpen}
             onError={handleMediaError}
@@ -123,7 +128,7 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
           />
         ) : (
           <img
-            src={`file://${data.filepath}`}
+            src={toFileUrl(data.filepath)}
             alt={data.filename}
             className="w-full h-full object-cover cursor-pointer"
             onClick={handleOpen}
