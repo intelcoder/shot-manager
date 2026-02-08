@@ -243,11 +243,6 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  // Handle recording data from renderer
-  ipcMain.on('recording:data', (event, data) => {
-    // This is handled in video.ts via one-time listener
-  });
-
   // Initialize recording IPC handlers (for countdown)
   initializeRecordingIpc();
 }
