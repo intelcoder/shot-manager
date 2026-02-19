@@ -1,0 +1,5 @@
+{
+  "project_name": "shot-manager",
+  "default_tags": ["electron", "typescript"],
+  "auto_capture": true
+}

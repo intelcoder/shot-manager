@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "llm-memory": {
+      "command": "python",
+      "args": ["-m", "llm_memory.cli.app", "mcp-serve"],
+      "env": {
+        "LLM_MEMORY_PROJECT": "shot-manager"
+      }
+    }
+  }
+}
