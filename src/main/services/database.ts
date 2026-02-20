@@ -90,7 +90,7 @@ export function closeDatabase(): void {
 }
 
 // Capture operations
-export function insertCapture(capture: Omit<CaptureRecord, 'id' | 'created_at'>): number {
+export function insertCapture(capture: Omit<CaptureRecord, 'id' | 'created_at' | 'annotations' | 'folder_id' | 'is_starred'>): number {
   const db = getDatabase();
   db.run(
     `INSERT INTO captures (type, filename, filepath, width, height, duration, size, thumbnail_path)
