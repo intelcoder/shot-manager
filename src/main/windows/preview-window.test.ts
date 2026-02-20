@@ -15,18 +15,11 @@ let blurHandler: (() => void) | null = null;
 let closedHandler: (() => void) | null = null;
 
 const mockClose = vi.fn();
+const mockBrowserWindow = vi.fn();
 
 // Mock Electron modules
 vi.mock('electron', () => ({
-  BrowserWindow: vi.fn().mockImplementation(() => ({
-    loadURL: vi.fn(),
-    close: mockClose,
-    on: vi.fn((event: string, handler: () => void) => {
-      if (event === 'focus') focusHandler = handler;
-      if (event === 'blur') blurHandler = handler;
-      if (event === 'closed') closedHandler = handler;
-    }),
-  })),
+  BrowserWindow: mockBrowserWindow,
   screen: {
     getPrimaryDisplay: () => ({
       workAreaSize: { width: 1920, height: 1080 },
@@ -48,6 +41,17 @@ describe('Preview Window Auto-Close Timer', () => {
     focusHandler = null;
     blurHandler = null;
     closedHandler = null;
+    // Re-apply BrowserWindow implementation after clearAllMocks resets it
+    mockBrowserWindow.mockImplementation(() => ({
+      loadURL: vi.fn(),
+      close: mockClose,
+      webContents: { on: vi.fn(), send: vi.fn() },
+      on: vi.fn((event: string, handler: () => void) => {
+        if (event === 'focus') focusHandler = handler;
+        if (event === 'blur') blurHandler = handler;
+        if (event === 'closed') closedHandler = handler;
+      }),
+    }));
     // Reset module state before each test
     vi.resetModules();
   });
