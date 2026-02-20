@@ -60,3 +60,6 @@ temp/
 
 # TypeScript
 *.tsbuildinfo
+
+# Git worktrees
+.worktrees/
