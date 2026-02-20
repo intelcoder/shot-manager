@@ -125,6 +125,8 @@ export interface ElectronAPI {
   tagCapturesBatch: (captureIds: number[], tagId: number, action: 'add' | 'remove') => Promise<void>;
   toggleCaptureStar: (captureId: number) => Promise<boolean>;
   starCapturesBatch: (captureIds: number[], starred: boolean) => Promise<void>;
+  saveAnnotations: (captureId: number, annotationsJson: string) => Promise<void>;
+  exportAnnotatedImage: (captureId: number, dataUrl: string) => Promise<void>;
 
   // Cleanup rules
   createCleanupRule: (input: CreateCleanupRuleInput) => Promise<CleanupRule>;
