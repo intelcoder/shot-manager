@@ -11,6 +11,7 @@ interface DetailModalProps {
   onOpenFile: (item: CaptureFile) => void;
   onShowInFolder: (item: CaptureFile) => void;
   onItemUpdate?: (item: CaptureFile) => void;
+  onAnnotate: (item: CaptureFile) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -29,7 +30,7 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder, onItemUpdate }: DetailModalProps) {
+function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder, onItemUpdate, onAnnotate }: DetailModalProps) {
   const [imageError, setImageError] = useState(false);
   const [isEditingFilename, setIsEditingFilename] = useState(false);
   const [editedFilename, setEditedFilename] = useState('');
@@ -233,6 +234,17 @@ function DetailModal({ item, onClose, onDelete, onOpenFile, onShowInFolder, onIt
             >
               Show in Folder
             </button>
+            {currentItem.type === 'screenshot' && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onAnnotate(currentItem);
+                }}
+                className="px-3 py-1.5 text-sm rounded bg-primary-500 text-white hover:bg-primary-600"
+              >
+                Annotate
+              </button>
+            )}
             <button
               onClick={() => onDelete(item)}
               className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors ml-auto"
