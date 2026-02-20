@@ -59,8 +59,7 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
       const canvasWidth = imgWidth * scale;
       const canvasHeight = imgHeight * scale;
 
-      canvas.setWidth(canvasWidth);
-      canvas.setHeight(canvasHeight);
+      canvas.setDimensions({ width: canvasWidth, height: canvasHeight });
 
       img.set({ left: 0, top: 0, scaleX: scale, scaleY: scale, selectable: false, evented: false });
       canvas.add(img);
@@ -134,7 +133,7 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
 
     canvas.on('mouse:down', (opt) => {
       isDrawingRef.current = true;
-      const pointer = canvas.getPointer(opt.e);
+      const pointer = canvas.getScenePoint(opt.e);
       startPointRef.current = { x: pointer.x, y: pointer.y };
 
       if (activeTool === 'text') {
@@ -157,7 +156,7 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
 
     canvas.on('mouse:move', (opt) => {
       if (!isDrawingRef.current) return;
-      const pointer = canvas.getPointer(opt.e);
+      const pointer = canvas.getScenePoint(opt.e);
       const { x: x1, y: y1 } = startPointRef.current;
 
       if (activeTool === 'rectangle') {
