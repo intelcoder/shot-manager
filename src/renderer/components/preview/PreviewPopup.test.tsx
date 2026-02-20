@@ -70,7 +70,7 @@ describe('PreviewPopup', () => {
 
     it('should render Delete button for all types', () => {
       render(<PreviewPopup data={mockScreenshotData} onDismiss={mockOnDismiss} />);
-      expect(screen.getByRole('button', { name: /🗑️/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /delete file/i })).toBeInTheDocument();
     });
   });
 
@@ -122,7 +122,7 @@ describe('PreviewPopup', () => {
   describe('Button Actions', () => {
     it('should delete file and dismiss on Delete button click', async () => {
       render(<PreviewPopup data={mockScreenshotData} onDismiss={mockOnDismiss} />);
-      const deleteButton = screen.getByRole('button', { name: /🗑️/ });
+      const deleteButton = screen.getByRole('button', { name: /delete file/i });
 
       fireEvent.click(deleteButton);
 
