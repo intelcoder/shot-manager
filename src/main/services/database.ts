@@ -409,6 +409,15 @@ function runMigrations(): void {
     }
   }
 
+  // Migration: add annotations column
+  try {
+    db!.run('ALTER TABLE captures ADD COLUMN annotations TEXT');
+    saveDatabase();
+    console.log('[DB] Migration: added annotations column');
+  } catch {
+    // Column already exists — ignore
+  }
+
   // Migration: Add folders table and folder_id to captures
   if (!appliedMigrations.has('001_add_folders')) {
     try {
@@ -709,6 +718,12 @@ export function toggleCapturesBatchStar(captureIds: number[], starred: boolean):
     `UPDATE captures SET is_starred = ? WHERE id IN (${placeholders})`,
     [starred ? 1 : 0, ...captureIds]
   );
+  saveDatabase();
+}
+
+export function saveAnnotations(captureId: number, annotationsJson: string): void {
+  const db = getDatabase();
+  db.run('UPDATE captures SET annotations = ? WHERE id = ?', [annotationsJson, captureId]);
   saveDatabase();
 }
 
