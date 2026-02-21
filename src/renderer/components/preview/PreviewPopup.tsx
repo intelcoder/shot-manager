@@ -94,7 +94,7 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
       onDismiss();
     } else if (containerRef.current) {
       // Reset position
-      containerRef.current.style.transform = 'translateX(0)';
+      containerRef.current.style.transform = 'translateX(0px)';
       containerRef.current.style.opacity = '1';
     }
     touchStartXRef.current = null;

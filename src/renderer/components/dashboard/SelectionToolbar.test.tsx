@@ -42,6 +42,7 @@ describe('SelectionToolbar', () => {
   const mockDeleteSelected = vi.fn();
   const mockMoveSelectedToFolder = vi.fn();
   const mockAddTagToSelected = vi.fn();
+  const mockStarSelected = vi.fn();
   const mockLoadFolderTree = vi.fn();
 
   beforeEach(() => {
@@ -55,6 +56,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -78,6 +81,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -94,6 +99,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -110,6 +117,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -131,6 +140,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -160,6 +171,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -190,6 +203,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -219,6 +234,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -247,6 +264,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [tag1, tag2],
     });
 
@@ -275,6 +294,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [tag],
     });
 
@@ -303,6 +324,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -328,6 +351,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -364,6 +389,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -393,6 +420,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 
@@ -425,6 +454,8 @@ describe('SelectionToolbar', () => {
       deleteSelected: mockDeleteSelected,
       moveSelectedToFolder: mockMoveSelectedToFolder,
       addTagToSelected: mockAddTagToSelected,
+      starSelected: mockStarSelected,
+      captures: [],
       tags: [],
     });
 

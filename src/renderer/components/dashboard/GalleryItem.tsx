@@ -10,6 +10,7 @@ interface GalleryItemProps {
   onSelect: (e: React.MouseEvent) => void;
   onClick: () => void;
   onDelete: () => void;
+  onAnnotate: () => void;
 }
 
 function formatDuration(seconds: number): string {
@@ -18,7 +19,7 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryItemProps) {
+function GalleryItem({ item, isSelected, onSelect, onClick, onDelete, onAnnotate }: GalleryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { selectedIds, toggleStar } = useCapturesStore();
@@ -203,6 +204,18 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
         {/* Hover overlay */}
         {isHovered && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-3">
+            {item.type === 'screenshot' && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAnnotate();
+                }}
+                className="p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+                title="Annotate"
+              >
+                ✏️
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();

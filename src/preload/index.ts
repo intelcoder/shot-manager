@@ -64,6 +64,10 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.CAPTURE_TOGGLE_STAR, captureId),
   starCapturesBatch: (captureIds, starred) =>
     ipcRenderer.invoke(IPC_CHANNELS.CAPTURES_STAR_BATCH, captureIds, starred),
+  saveAnnotations: (captureId, annotationsJson) =>
+    ipcRenderer.invoke(IPC_CHANNELS.ANNOTATION_SAVE, captureId, annotationsJson),
+  exportAnnotatedImage: (captureId, dataUrl) =>
+    ipcRenderer.invoke(IPC_CHANNELS.ANNOTATION_EXPORT, captureId, dataUrl),
 
   // Cleanup rules
   createCleanupRule: (input) =>

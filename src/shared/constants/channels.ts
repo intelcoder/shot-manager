@@ -36,6 +36,10 @@ export const IPC_CHANNELS = {
   CAPTURE_TOGGLE_STAR: 'capture:toggle-star',
   CAPTURES_STAR_BATCH: 'captures:star-batch',
 
+  // Annotations
+  ANNOTATION_SAVE: 'annotation:save',
+  ANNOTATION_EXPORT: 'annotation:export',
+
   // Cleanup rules
   CLEANUP_RULE_CREATE: 'cleanup:rule:create',
   CLEANUP_RULE_UPDATE: 'cleanup:rule:update',

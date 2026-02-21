@@ -93,7 +93,9 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
     e.preventDefault();
     e.stopPropagation();
     // Required: must set dropEffect to allow dropping
-    e.dataTransfer.dropEffect = 'move';
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {

@@ -1,4 +1,4 @@
-import { ipcMain, shell, desktopCapturer, screen, BrowserWindow, nativeImage } from 'electron';
+import { ipcMain, shell, desktopCapturer, screen, BrowserWindow, nativeImage, clipboard } from 'electron';
 import { IPC_CHANNELS } from '../../shared/constants/channels';
 import { captureScreenshot, getDisplayInfo } from '../capture/screenshot';
 import { startRecording, stopRecording, pauseRecording, resumeRecording, getRecordingState, initializeRecordingIpc } from '../capture/video';
@@ -22,6 +22,7 @@ import {
   getTotalCaptureCount,
   toggleCaptureStar,
   toggleCapturesBatchStar,
+  saveAnnotations,
   createCleanupRule,
   updateCleanupRule,
   deleteCleanupRule,
@@ -290,4 +291,21 @@ export function registerIpcHandlers(): void {
 
   // Initialize recording IPC handlers (for countdown)
   initializeRecordingIpc();
+
+  // Annotation handlers
+  ipcMain.handle(IPC_CHANNELS.ANNOTATION_SAVE, async (_event, captureId: number, annotationsJson: string) => {
+    try {
+      saveAnnotations(captureId, annotationsJson);
+    } catch (error) {
+      console.error('[IPC] ANNOTATION_SAVE failed:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.ANNOTATION_EXPORT, async (_event, _captureId: number, dataUrl: string) => {
+    const base64 = dataUrl.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Buffer.from(base64, 'base64');
+    const image = nativeImage.createFromBuffer(imageBuffer);
+    clipboard.writeImage(image);
+  });
 }

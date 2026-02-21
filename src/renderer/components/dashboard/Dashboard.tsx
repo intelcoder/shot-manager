@@ -9,10 +9,12 @@ import { DragProvider } from '../dnd/DragContext';
 import { useCapturesStore } from '../../stores/captures-store';
 import { useFoldersStore } from '../../stores/folders-store';
 import type { CaptureFile } from '../../../shared/types/capture';
+import AnnotationEditor from '../annotation/AnnotationEditor';
 
 function Dashboard() {
   const [selectedItem, setSelectedItem] = useState<CaptureFile | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [annotatingItem, setAnnotatingItem] = useState<CaptureFile | null>(null);
   const { captures, isLoading, loadCaptures, loadTags, deleteCapture, clearSelection } = useCapturesStore();
   const { loadFolderTree } = useFoldersStore();
 
@@ -64,6 +66,20 @@ function Dashboard() {
     setSelectedItem(updatedItem);
   };
 
+  const handleAnnotate = (item: CaptureFile) => {
+    setSelectedItem(null);
+    setAnnotatingItem(item);
+  };
+
+  const handleAnnotationSave = () => {
+    loadCaptures();
+    setAnnotatingItem(null);
+  };
+
+  const handleAnnotationCancel = () => {
+    setAnnotatingItem(null);
+  };
+
   if (showSettings) {
     return (
       <div className="h-screen flex flex-col bg-surface-primary">
@@ -87,12 +103,21 @@ function Dashboard() {
         <div className="flex flex-1 overflow-hidden">
           <Sidebar onSettingsClick={() => setShowSettings(true)} />
           <main className="flex-1 overflow-auto bg-surface-secondary">
-            <Gallery
-              items={captures}
-              isLoading={isLoading}
-              onItemClick={handleItemClick}
-              onItemDelete={handleItemDelete}
-            />
+            {annotatingItem ? (
+              <AnnotationEditor
+                item={annotatingItem}
+                onSave={handleAnnotationSave}
+                onCancel={handleAnnotationCancel}
+              />
+            ) : (
+              <Gallery
+                items={captures}
+                isLoading={isLoading}
+                onItemClick={handleItemClick}
+                onItemDelete={handleItemDelete}
+                onItemAnnotate={handleAnnotate}
+              />
+            )}
           </main>
         </div>
 
@@ -108,6 +133,7 @@ function Dashboard() {
             onOpenFile={handleOpenFile}
             onShowInFolder={handleShowInFolder}
             onItemUpdate={handleItemUpdate}
+            onAnnotate={handleAnnotate}
           />
         )}
       </div>

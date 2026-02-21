@@ -90,7 +90,7 @@ export function closeDatabase(): void {
 }
 
 // Capture operations
-export function insertCapture(capture: Omit<CaptureRecord, 'id' | 'created_at'>): number {
+export function insertCapture(capture: Omit<CaptureRecord, 'id' | 'created_at' | 'annotations' | 'folder_id' | 'is_starred'>): number {
   const db = getDatabase();
   db.run(
     `INSERT INTO captures (type, filename, filepath, width, height, duration, size, thumbnail_path)
@@ -450,6 +450,28 @@ function runMigrations(): void {
       throw error;
     }
   }
+
+  // Migration: Add annotations column to captures
+  if (!appliedMigrations.has('003_add_annotations')) {
+    try {
+      db.run('BEGIN TRANSACTION');
+
+      const tableInfo = db.exec("PRAGMA table_info(captures)");
+      const columns = tableInfo.length > 0 ? tableInfo[0].values.map(row => row[1]) : [];
+
+      if (!columns.includes('annotations')) {
+        db.run('ALTER TABLE captures ADD COLUMN annotations TEXT');
+      }
+
+      db.run("INSERT INTO migrations (name) VALUES ('003_add_annotations')");
+      db.run('COMMIT');
+      console.log('[Database] Migration 003_add_annotations applied successfully');
+    } catch (error) {
+      db.run('ROLLBACK');
+      console.error('[Database] Migration 003_add_annotations failed:', error);
+      throw error;
+    }
+  }
 }
 
 // Folder operations
@@ -709,6 +731,12 @@ export function toggleCapturesBatchStar(captureIds: number[], starred: boolean):
     `UPDATE captures SET is_starred = ? WHERE id IN (${placeholders})`,
     [starred ? 1 : 0, ...captureIds]
   );
+  saveDatabase();
+}
+
+export function saveAnnotations(captureId: number, annotationsJson: string): void {
+  const db = getDatabase();
+  db.run('UPDATE captures SET annotations = ? WHERE id = ?', [annotationsJson, captureId]);
   saveDatabase();
 }
 
