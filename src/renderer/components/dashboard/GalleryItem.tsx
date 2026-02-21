@@ -62,8 +62,19 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
     // Set both MIME types for browser compatibility
     e.dataTransfer.setData('application/json', data);
     e.dataTransfer.setData('text/plain', data);
-    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.effectAllowed = 'copyMove';
     e.dataTransfer.dropEffect = 'move';
+
+    // Trigger native file drag for external applications
+    const { captures } = useCapturesStore.getState();
+    const filePaths = captureIds
+      .map(id => captures.find(c => c.id === id)?.filepath)
+      .filter((p): p is string => !!p);
+
+    if (filePaths.length > 0) {
+      const firstCapture = captures.find(c => c.id === captureIds[0]);
+      window.electronAPI.startDrag(filePaths, firstCapture?.thumbnail_path ?? undefined);
+    }
 
     // Create a custom drag image showing count
     if (captureIds.length > 1) {

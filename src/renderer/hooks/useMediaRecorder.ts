@@ -9,6 +9,10 @@ interface MediaRecorderState {
   width: number;
   height: number;
   area?: SelectionArea;
+  animationFrameId: number | null;
+  cropVideo: HTMLVideoElement | null;
+  cropCanvas: HTMLCanvasElement | null;
+  rawStream: MediaStream | null;
 }
 
 export function useMediaRecorder(enabled: boolean = true) {
@@ -19,6 +23,10 @@ export function useMediaRecorder(enabled: boolean = true) {
     width: 0,
     height: 0,
     area: undefined,
+    animationFrameId: null,
+    cropVideo: null,
+    cropCanvas: null,
+    rawStream: null,
   });
 
   const cleanup = useCallback(() => {
@@ -32,6 +40,25 @@ export function useMediaRecorder(enabled: boolean = true) {
       }
     }
 
+    // Cancel animation frame for crop pipeline
+    if (state.animationFrameId) {
+      cancelAnimationFrame(state.animationFrameId);
+    }
+
+    // Clean up canvas pipeline
+    if (state.cropVideo) {
+      state.cropVideo.srcObject = null;
+    }
+    if (state.cropCanvas) {
+      state.cropCanvas.width = 0;
+    }
+
+    // Stop raw stream tracks (the original full-screen stream)
+    if (state.rawStream) {
+      state.rawStream.getTracks().forEach((track) => track.stop());
+    }
+
+    // Stop recording stream tracks
     if (state.mediaStream) {
       state.mediaStream.getTracks().forEach((track) => track.stop());
     }
@@ -43,6 +70,10 @@ export function useMediaRecorder(enabled: boolean = true) {
       width: 0,
       height: 0,
       area: undefined,
+      animationFrameId: null,
+      cropVideo: null,
+      cropCanvas: null,
+      rawStream: null,
     };
   }, []);
 
@@ -51,30 +82,70 @@ export function useMediaRecorder(enabled: boolean = true) {
       // Clean up any existing recording
       cleanup();
 
-      const { sourceId, options, display } = data;
+      const { sourceId, options, display, videoQuality } = data;
 
       // Get video constraints based on quality and display
-      const constraints = getVideoConstraints(sourceId, display, options);
+      const constraints = getVideoConstraints(sourceId, display, options, videoQuality);
 
       // Get the media stream
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
+      let recordingStream: MediaStream = stream;
+
+      if (options.area) {
+        // Create canvas cropping pipeline
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.muted = true;
+        await video.play();
+
+        // The capture may be downscaled from native resolution based on quality
+        const nativeWidth = display.width * display.scaleFactor;
+        const captureWidth = stream.getVideoTracks()[0].getSettings().width || nativeWidth;
+        const captureScale = captureWidth / nativeWidth;
+
+        const scaleFactor = display.scaleFactor * captureScale;
+        const cropX = options.area.x * scaleFactor;
+        const cropY = options.area.y * scaleFactor;
+        const cropW = options.area.width * scaleFactor;
+        const cropH = options.area.height * scaleFactor;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cropW;
+        canvas.height = cropH;
+        const ctx = canvas.getContext('2d')!;
+
+        // Animation loop to draw cropped frames
+        const drawFrame = () => {
+          ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+          stateRef.current.animationFrameId = requestAnimationFrame(drawFrame);
+        };
+        stateRef.current.animationFrameId = requestAnimationFrame(drawFrame);
+
+        stateRef.current.cropVideo = video;
+        stateRef.current.cropCanvas = canvas;
+        stateRef.current.rawStream = stream;
+
+        // Get cropped stream from canvas
+        recordingStream = canvas.captureStream(30);
+      }
+
       // Store dimensions for later
-      const videoTrack = stream.getVideoTracks()[0];
-      const trackSettings = videoTrack.getSettings();
-      stateRef.current.width = trackSettings.width || display.width;
-      stateRef.current.height = trackSettings.height || display.height;
+      stateRef.current.width = options.area ? options.area.width : (stream.getVideoTracks()[0].getSettings().width || display.width);
+      stateRef.current.height = options.area ? options.area.height : (stream.getVideoTracks()[0].getSettings().height || display.height);
       stateRef.current.area = options.area;
-      stateRef.current.mediaStream = stream;
+      stateRef.current.mediaStream = recordingStream;
       stateRef.current.chunks = [];
 
       // Determine the best codec
       const mimeType = getSupportedMimeType();
 
-      // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
+      // Create MediaRecorder with the (possibly cropped) stream
+      const bitWidth = options.area ? options.area.width : display.width;
+      const bitHeight = options.area ? options.area.height : display.height;
+      const mediaRecorder = new MediaRecorder(recordingStream, {
         mimeType,
-        videoBitsPerSecond: getVideoBitrate(display.width, display.height),
+        videoBitsPerSecond: getVideoBitrate(bitWidth, bitHeight),
       });
 
       mediaRecorder.ondataavailable = (event) => {
@@ -101,6 +172,8 @@ export function useMediaRecorder(enabled: boolean = true) {
     } catch (error) {
       console.error('Failed to start recording:', error);
       cleanup();
+      // Notify main process so it can reset isRecording state
+      window.electronAPI?.sendRecordingStartFailed();
     }
   }, [cleanup]);
 
@@ -134,20 +207,12 @@ export function useMediaRecorder(enabled: boolean = true) {
       // Convert to ArrayBuffer
       const buffer = await blob.arrayBuffer();
 
-      // Calculate actual dimensions (accounting for area selection)
-      let width = state.width;
-      let height = state.height;
-
-      if (state.area) {
-        width = state.area.width;
-        height = state.area.height;
-      }
-
       // Send data to main process
+      // Dimensions are already correct (set to area dimensions when cropping)
       window.electronAPI.sendRecordingData({
         buffer,
-        width,
-        height,
+        width: state.width,
+        height: state.height,
       });
     } else {
       // Send empty data to indicate failure
@@ -212,14 +277,34 @@ export function useMediaRecorder(enabled: boolean = true) {
   }, [enabled, startRecording, handleStop, handlePause, handleResume, cleanup]);
 }
 
+function getQualityCap(quality: 'low' | 'medium' | 'high'): { width: number; height: number } | null {
+  switch (quality) {
+    case 'low': return { width: 1280, height: 720 };
+    case 'medium': return { width: 1920, height: 1080 };
+    case 'high': return null; // No cap — native resolution
+  }
+}
+
 function getVideoConstraints(
   sourceId: string,
   display: { width: number; height: number; scaleFactor: number },
-  options: RecordingOptions
+  options: RecordingOptions,
+  videoQuality: 'low' | 'medium' | 'high' = 'high'
 ): MediaStreamConstraints {
   // Calculate actual pixel dimensions
-  const width = display.width * display.scaleFactor;
-  const height = display.height * display.scaleFactor;
+  let width = display.width * display.scaleFactor;
+  let height = display.height * display.scaleFactor;
+
+  // Apply quality cap if below native resolution
+  const cap = getQualityCap(videoQuality);
+  if (cap && (width > cap.width || height > cap.height)) {
+    const scale = Math.min(cap.width / width, cap.height / height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+    // Ensure even dimensions (required by most video codecs)
+    width = width - (width % 2);
+    height = height - (height % 2);
+  }
 
   return {
     audio: false, // Audio support excluded initially

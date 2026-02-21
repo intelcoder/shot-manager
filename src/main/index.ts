@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, protocol } from 'electron';
+import fs from 'fs';
 import path from 'path';
 import { createMainWindow, getMainWindow, showMainWindow } from './windows/main-window';
 import { createTray } from './tray';
@@ -10,7 +11,48 @@ import { initCleanupScheduler, stopCleanupScheduler } from './services/cleanup-s
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// Register custom protocol for serving local media files to sandboxed renderers.
+// Must be called before app.whenReady().
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'local-media',
+    privileges: {
+      standard: true,
+      secure: true,
+      stream: true,
+      bypassCSP: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
 async function initialize() {
+  // Register protocol handler for local media files
+  protocol.handle('local-media', async (request) => {
+    // Strip scheme + authority (e.g. "local-media://media/") to get the file path
+    const raw = request.url.replace(/^local-media:\/\/[^/]*\//, '');
+    const filePath = decodeURIComponent(raw);
+
+    try {
+      const data = await fs.promises.readFile(filePath);
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.webm': 'video/webm',
+        '.mp4': 'video/mp4',
+        '.mov': 'video/quicktime',
+      };
+      const contentType = mimeTypes[ext] ?? 'application/octet-stream';
+      return new Response(data, { headers: { 'Content-Type': contentType } });
+    } catch {
+      return new Response('File not found', { status: 404 });
+    }
+  });
+
   // Initialize services
   await initDatabase();
   await initSettings();

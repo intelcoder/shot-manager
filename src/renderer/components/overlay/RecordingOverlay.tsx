@@ -13,9 +13,19 @@ function formatDuration(seconds: number): string {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+function getInitialOverlayParams(): { mode: OverlayMode; countdown: number } {
+  const hash = window.location.hash;
+  const queryString = hash.split('?')[1] || '';
+  const params = new URLSearchParams(queryString);
+  const mode = (params.get('mode') as OverlayMode) || 'countdown';
+  const countdown = parseInt(params.get('countdown') || '3', 10);
+  return { mode, countdown };
+}
+
 function RecordingOverlay() {
-  const [mode, setMode] = useState<OverlayMode>('countdown');
-  const [countdown, setCountdown] = useState(3);
+  const initial = getInitialOverlayParams();
+  const [mode, setMode] = useState<OverlayMode>(initial.mode);
+  const [countdown, setCountdown] = useState(initial.countdown);
   const [countdownAnimating, setCountdownAnimating] = useState(false);
   const [recordingData, setRecordingData] = useState<RecordingData>({ duration: 0, isPaused: false });
 

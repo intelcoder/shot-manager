@@ -37,6 +37,7 @@ export interface RecordingStartData {
     height: number;
     scaleFactor: number;
   };
+  videoQuality: 'low' | 'medium' | 'high';
 }
 
 export interface RecordingData {
@@ -79,6 +80,7 @@ export interface AreaBorderInitData {
     width: number;
     height: number;
   };
+  countdownDuration?: number;
 }
 
 export interface AreaBorderUpdateData {
@@ -104,6 +106,7 @@ export interface ElectronAPI {
   renameFile: (id: number, newFilename: string) => Promise<{ success: boolean; error?: string; capture?: CaptureFile }>;
   openFile: (filepath: string) => Promise<void>;
   openInFolder: (filepath: string) => void;
+  startDrag: (filePaths: string[], iconPath?: string) => void;
 
   // Tags
   getAllTags: () => Promise<Tag[]>;
@@ -167,6 +170,7 @@ export interface ElectronAPI {
   onRecordingPause: (callback: () => void) => () => void;
   onRecordingResume: (callback: () => void) => () => void;
   sendRecordingData: (data: RecordingData) => void;
+  sendRecordingStartFailed: () => void;
 
   // Countdown
   onRecordingCountdown: (callback: (data: CountdownData) => void) => () => void;

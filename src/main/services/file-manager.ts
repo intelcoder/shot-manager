@@ -1,4 +1,4 @@
-import { shell, nativeImage, clipboard, dialog } from 'electron';
+import { app, shell, nativeImage, clipboard, dialog } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import { format as formatDate } from 'date-fns';
@@ -22,7 +22,6 @@ export async function saveScreenshot(image: Electron.NativeImage): Promise<Captu
 
   // Ensure savePath is valid, use default if empty
   if (!savePath) {
-    const { app } = require('electron');
     savePath = path.join(app.getPath('pictures'), 'Shot Manager');
     console.log('[FileManager] savePath was empty, using default:', savePath);
   }
@@ -83,8 +82,13 @@ export async function saveScreenshot(image: Electron.NativeImage): Promise<Captu
 }
 
 export async function saveVideo(buffer: Buffer, duration: number, width: number, height: number): Promise<CaptureResult> {
-  const savePath = getSetting('savePath');
+  let savePath = getSetting('savePath');
   const prefix = getSetting('filePrefix');
+
+  // Ensure savePath is valid, use default if empty
+  if (!savePath) {
+    savePath = path.join(app.getPath('pictures'), 'Shot Manager');
+  }
   const videoFormat = getSetting('videoFormat');
   const style = getSetting('organizationStyle');
 

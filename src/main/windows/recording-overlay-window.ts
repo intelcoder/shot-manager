@@ -73,13 +73,17 @@ export function showRecordingOverlay(mode: 'countdown' | 'recording', countdownD
     },
   });
 
+  // Exclude from screen capture so overlay doesn't appear in recordings
+  state.window.setContentProtection(true);
+
   // Set window to be always on top with highest level
   state.window.setAlwaysOnTop(true, 'screen-saver');
 
-  // Load the overlay page
+  // Load the overlay page with mode in URL for immediate availability
+  const params = `mode=${mode}${countdownDuration ? `&countdown=${countdownDuration}` : ''}`;
   const url = isDev
-    ? 'http://localhost:5173/#/recording-overlay'
-    : `file://${path.join(__dirname, '../renderer/index.html')}#/recording-overlay`;
+    ? `http://localhost:5173/#/recording-overlay?${params}`
+    : `file://${path.join(__dirname, '../renderer/index.html')}#/recording-overlay?${params}`;
 
   state.window.loadURL(url);
 

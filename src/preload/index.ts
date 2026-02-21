@@ -26,6 +26,8 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IPC_CHANNELS.FILE_OPEN, filepath),
   openInFolder: (filepath) =>
     ipcRenderer.send(IPC_CHANNELS.FILE_OPEN_FOLDER, filepath),
+  startDrag: (filePaths, iconPath) =>
+    ipcRenderer.send(IPC_CHANNELS.FILE_START_DRAG, filePaths, iconPath),
 
   // Tags
   getAllTags: () =>
@@ -156,6 +158,9 @@ const electronAPI: ElectronAPI = {
   },
   sendRecordingData: (data) => {
     ipcRenderer.send(IPC_CHANNELS.RECORDING_DATA, data);
+  },
+  sendRecordingStartFailed: () => {
+    ipcRenderer.send(IPC_CHANNELS.RECORDING_START_FAILED);
   },
 
   // Countdown

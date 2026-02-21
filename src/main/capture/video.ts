@@ -29,9 +29,37 @@ export function getRecordingState(): RecordingState {
   return { ...recordingState };
 }
 
+function forceResetRecordingState(): void {
+  console.warn('Force-resetting stuck recording state');
+  if (durationInterval) {
+    clearInterval(durationInterval);
+    durationInterval = null;
+  }
+  recordingState = {
+    isRecording: false,
+    isPaused: false,
+    duration: 0,
+    startTime: null,
+  };
+  setTrayRecording(false);
+  currentRecordingWindow = null;
+  pendingRecordingData = null;
+  closeRecordingOverlay();
+  closeAreaBorderOverlay();
+  broadcastRecordingStatus();
+}
+
 export async function startRecording(options: RecordingOptions): Promise<void> {
   if (recordingState.isRecording) {
-    throw new Error('Already recording');
+    // Force-reset stuck state so the user can start a new recording
+    forceResetRecordingState();
+  }
+
+  // Also cancel any pending countdown
+  if (pendingRecordingData) {
+    pendingRecordingData = null;
+    closeRecordingOverlay();
+    closeAreaBorderOverlay();
   }
 
   // Close capture overlay if open
@@ -71,6 +99,8 @@ export async function startRecording(options: RecordingOptions): Promise<void> {
     throw new Error('Source not found');
   }
 
+  const videoQuality = getSetting('videoQuality') as 'low' | 'medium' | 'high';
+
   const recordingData = {
     sourceId: source.id,
     options,
@@ -79,6 +109,7 @@ export async function startRecording(options: RecordingOptions): Promise<void> {
       height: display.size.height,
       scaleFactor: display.scaleFactor,
     },
+    videoQuality,
   };
 
   // Check if countdown is enabled
@@ -89,21 +120,12 @@ export async function startRecording(options: RecordingOptions): Promise<void> {
     // Store pending recording data and send countdown event
     pendingRecordingData = recordingData;
 
-    // Show area border overlay for area recording during countdown
     if (options.mode === 'area' && options.area) {
-      showAreaBorderOverlay(options.area);
-    }
-
-    // Show floating countdown overlay
-    showRecordingOverlay('countdown', countdownDuration);
-
-    // Also notify main window for backwards compatibility
-    const mainWindow = getMainWindow();
-    if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.RECORDING_COUNTDOWN, {
-        duration: countdownDuration,
-        ...recordingData,
-      });
+      // Area mode: show countdown integrated into the area border overlay
+      showAreaBorderOverlay(options.area, countdownDuration);
+    } else {
+      // Non-area: show floating countdown overlay
+      showRecordingOverlay('countdown', countdownDuration);
     }
   } else {
     // Show area border overlay for area recording
@@ -200,7 +222,7 @@ export function pauseRecording(): void {
   recordingState.isPaused = true;
 
   if (currentRecordingWindow) {
-    currentRecordingWindow.webContents.send('recording:pause');
+    currentRecordingWindow.webContents.send(IPC_CHANNELS.RECORDING_PAUSE);
   }
 
   // Update overlay
@@ -218,7 +240,7 @@ export function resumeRecording(): void {
   recordingState.isPaused = false;
 
   if (currentRecordingWindow) {
-    currentRecordingWindow.webContents.send('recording:resume');
+    currentRecordingWindow.webContents.send(IPC_CHANNELS.RECORDING_RESUME);
   }
 
   // Update overlay
@@ -254,18 +276,28 @@ export async function stopRecording(): Promise<CaptureResult | null> {
     startTime: null,
   };
 
+  // Broadcast stopped status immediately so UI updates right away
+  broadcastRecordingStatus();
+
   // Request video data from renderer BEFORE closing overlay windows
   return new Promise((resolve) => {
     if (currentRecordingWindow) {
+      let timeoutId: NodeJS.Timeout | null = null;
+
       // Set up one-time listener for recording data
       const handler = async (_event: Electron.IpcMainEvent, data: { buffer: ArrayBuffer; width: number; height: number }) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+
         currentRecordingWindow = null;
 
         // Close overlay windows after data is received
         closeRecordingOverlay();
         closeAreaBorderOverlay();
 
-        if (!data || !data.buffer) {
+        if (!data || !data.buffer || data.buffer.byteLength === 0) {
           broadcastRecordingStatus();
           resolve(null);
           return;
@@ -297,11 +329,21 @@ export async function stopRecording(): Promise<CaptureResult | null> {
         }
       };
 
-      const { ipcMain } = require('electron');
-      ipcMain.once('recording:data', handler);
+      ipcMain.once(IPC_CHANNELS.RECORDING_DATA, handler);
+
+      // Safety timeout: if recording data never arrives, clean up anyway
+      timeoutId = setTimeout(() => {
+        console.warn('Recording data timeout - cleaning up');
+        ipcMain.removeListener(IPC_CHANNELS.RECORDING_DATA, handler);
+        currentRecordingWindow = null;
+        closeRecordingOverlay();
+        closeAreaBorderOverlay();
+        broadcastRecordingStatus();
+        resolve(null);
+      }, 10000);
 
       // Send stop signal while window is still alive
-      currentRecordingWindow.webContents.send('recording:stop');
+      currentRecordingWindow.webContents.send(IPC_CHANNELS.RECORDING_STOP);
     } else {
       // No recording window — clean up overlays anyway
       closeRecordingOverlay();
@@ -324,8 +366,13 @@ export function initializeRecordingIpc(): void {
   ipcMain.on(IPC_CHANNELS.RECORDING_COUNTDOWN_COMPLETE, () => {
     console.log('Countdown complete, starting recording');
     if (pendingRecordingData) {
-      // Transition the overlay from countdown to recording mode
-      transitionToRecording();
+      if (pendingRecordingData.options.mode === 'area') {
+        // Area: countdown was in area-border overlay, create new recording overlay
+        showRecordingOverlay('recording');
+      } else {
+        // Non-area: countdown was in recording overlay, transition it
+        transitionToRecording();
+      }
       startRecordingImmediate(pendingRecordingData);
       pendingRecordingData = null;
     }
@@ -336,5 +383,11 @@ export function initializeRecordingIpc(): void {
     pendingRecordingData = null;
     closeRecordingOverlay();
     closeAreaBorderOverlay();
+  });
+
+  // Handle renderer reporting that recording failed to start
+  ipcMain.on(IPC_CHANNELS.RECORDING_START_FAILED, () => {
+    console.warn('Recording start failed in renderer, resetting state');
+    forceResetRecordingState();
   });
 }

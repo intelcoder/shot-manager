@@ -120,6 +120,8 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
             className="w-full h-full object-cover cursor-pointer"
             onClick={handleOpen}
             onError={handleMediaError}
+            autoPlay
+            loop
             muted
           />
         ) : (

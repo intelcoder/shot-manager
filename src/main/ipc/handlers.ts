@@ -1,4 +1,4 @@
-import { ipcMain, shell, desktopCapturer, screen, BrowserWindow } from 'electron';
+import { ipcMain, shell, desktopCapturer, screen, BrowserWindow, nativeImage } from 'electron';
 import { IPC_CHANNELS } from '../../shared/constants/channels';
 import { captureScreenshot, getDisplayInfo } from '../capture/screenshot';
 import { startRecording, stopRecording, pauseRecording, resumeRecording, getRecordingState, initializeRecordingIpc } from '../capture/video';
@@ -82,6 +82,28 @@ export function registerIpcHandlers(): void {
 
   ipcMain.on(IPC_CHANNELS.FILE_OPEN_FOLDER, (_event, filepath: string) => {
     showInFolder(filepath);
+  });
+
+  ipcMain.on(IPC_CHANNELS.FILE_START_DRAG, (event, filePaths: string[], iconPath?: string) => {
+    if (!filePaths || filePaths.length === 0) return;
+
+    let icon: Electron.NativeImage;
+    if (iconPath) {
+      try {
+        icon = nativeImage.createFromPath(iconPath);
+        icon = icon.resize({ width: 128, height: 128 });
+      } catch {
+        icon = nativeImage.createEmpty();
+      }
+    } else {
+      icon = nativeImage.createEmpty();
+    }
+
+    if (filePaths.length === 1) {
+      event.sender.startDrag({ file: filePaths[0], icon });
+    } else {
+      event.sender.startDrag({ file: filePaths[0], files: filePaths, icon });
+    }
   });
 
   // Tag handlers

@@ -12,6 +12,7 @@ export const IPC_CHANNELS = {
   FILE_RENAME: 'file:rename',
   FILE_OPEN: 'file:open',
   FILE_OPEN_FOLDER: 'file:open-folder',
+  FILE_START_DRAG: 'file:start-drag',
   FILE_GET_THUMBNAIL: 'file:get-thumbnail',
 
   // Tags
@@ -80,6 +81,7 @@ export const IPC_CHANNELS = {
   RECORDING_PAUSE: 'recording:pause',
   RECORDING_RESUME: 'recording:resume',
   RECORDING_DATA: 'recording:data',
+  RECORDING_START_FAILED: 'recording:start-failed',
 
   // Countdown (main <-> renderer)
   RECORDING_COUNTDOWN: 'recording:countdown',

@@ -5,11 +5,9 @@ import SearchBar from './SearchBar';
 import DetailModal from './DetailModal';
 import SelectionToolbar from './SelectionToolbar';
 import SettingsPanel from '../settings/SettingsPanel';
-import RecordingIndicator from '../common/RecordingIndicator';
 import { DragProvider } from '../dnd/DragContext';
 import { useCapturesStore } from '../../stores/captures-store';
 import { useFoldersStore } from '../../stores/folders-store';
-import { useRecordingStore } from '../../stores/recording-store';
 import type { CaptureFile } from '../../../shared/types/capture';
 
 function Dashboard() {
@@ -17,7 +15,6 @@ function Dashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const { captures, isLoading, loadCaptures, loadTags, deleteCapture, clearSelection } = useCapturesStore();
   const { loadFolderTree } = useFoldersStore();
-  const { isRecording } = useRecordingStore();
 
   useEffect(() => {
     loadCaptures();
@@ -75,7 +72,6 @@ function Dashboard() {
         <header className="border-b bg-gray-50">
           <div className="flex items-center justify-between px-4 py-2">
             <h1 className="text-lg font-semibold text-gray-800">Shot Manager</h1>
-            {isRecording && <RecordingIndicator />}
           </div>
           <SearchBar />
         </header>
