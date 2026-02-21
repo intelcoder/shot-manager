@@ -409,15 +409,6 @@ function runMigrations(): void {
     }
   }
 
-  // Migration: add annotations column
-  try {
-    db!.run('ALTER TABLE captures ADD COLUMN annotations TEXT');
-    saveDatabase();
-    console.log('[DB] Migration: added annotations column');
-  } catch {
-    // Column already exists — ignore
-  }
-
   // Migration: Add folders table and folder_id to captures
   if (!appliedMigrations.has('001_add_folders')) {
     try {
@@ -456,6 +447,28 @@ function runMigrations(): void {
     } catch (error) {
       db.run('ROLLBACK');
       console.error('[Database] Migration 001_add_folders failed:', error);
+      throw error;
+    }
+  }
+
+  // Migration: Add annotations column to captures
+  if (!appliedMigrations.has('003_add_annotations')) {
+    try {
+      db.run('BEGIN TRANSACTION');
+
+      const tableInfo = db.exec("PRAGMA table_info(captures)");
+      const columns = tableInfo.length > 0 ? tableInfo[0].values.map(row => row[1]) : [];
+
+      if (!columns.includes('annotations')) {
+        db.run('ALTER TABLE captures ADD COLUMN annotations TEXT');
+      }
+
+      db.run("INSERT INTO migrations (name) VALUES ('003_add_annotations')");
+      db.run('COMMIT');
+      console.log('[Database] Migration 003_add_annotations applied successfully');
+    } catch (error) {
+      db.run('ROLLBACK');
+      console.error('[Database] Migration 003_add_annotations failed:', error);
       throw error;
     }
   }

@@ -249,7 +249,12 @@ export function registerIpcHandlers(): void {
 
   // Annotation handlers
   ipcMain.handle(IPC_CHANNELS.ANNOTATION_SAVE, async (_event, captureId: number, annotationsJson: string) => {
-    saveAnnotations(captureId, annotationsJson);
+    try {
+      saveAnnotations(captureId, annotationsJson);
+    } catch (error) {
+      console.error('[IPC] ANNOTATION_SAVE failed:', error);
+      throw error;
+    }
   });
 
   ipcMain.handle(IPC_CHANNELS.ANNOTATION_EXPORT, async (_event, _captureId: number, dataUrl: string) => {

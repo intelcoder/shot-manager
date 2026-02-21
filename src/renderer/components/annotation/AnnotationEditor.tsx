@@ -7,15 +7,18 @@ type Tool = 'select' | 'arrow' | 'text' | 'rectangle';
 
 interface AnnotationEditorProps {
   item: CaptureFile;
-  onSave: (updatedItem: CaptureFile) => void;
+  onSave: () => void;
   onCancel: () => void;
 }
 
 function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricRef = useRef<Canvas | null>(null);
+  const backgroundImageRef = useRef<FabricImage | null>(null);
+  const scaleRef = useRef(1);
   const [activeTool, setActiveTool] = useState<Tool>('select');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const historyRef = useRef<string[]>([]);
   const historyIndexRef = useRef(-1);
   const isDrawingRef = useRef(false);
@@ -25,15 +28,21 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
   const pushHistory = useCallback(() => {
     const canvas = fabricRef.current;
     if (!canvas) return;
-    const json = JSON.stringify(canvas.toJSON());
+    // Exclude background image from history to avoid storing large base64 data per undo step
+    const fullJson = canvas.toJSON();
+    const state = {
+      ...fullJson,
+      objects: fullJson.objects.filter((obj: any) => !obj.data?.isBackground),
+    };
     historyRef.current = historyRef.current.slice(0, historyIndexRef.current + 1);
-    historyRef.current.push(json);
+    historyRef.current.push(JSON.stringify(state));
     historyIndexRef.current = historyRef.current.length - 1;
   }, []);
 
   // Initialize Fabric canvas
   useEffect(() => {
     if (!canvasRef.current) return;
+    let cancelled = false;
 
     const canvas = new Canvas(canvasRef.current, {
       selection: true,
@@ -43,6 +52,8 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
 
     const imageUrl = toFileUrl(item.filepath);
     FabricImage.fromURL(imageUrl, { crossOrigin: 'anonymous' }).then((img) => {
+      if (cancelled) return;
+
       const container = canvasRef.current?.parentElement;
       if (!container) return;
 
@@ -56,19 +67,35 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
       const scaleY = containerHeight / imgHeight;
       const scale = Math.min(scaleX, scaleY, 1);
 
+      scaleRef.current = scale;
+
       const canvasWidth = imgWidth * scale;
       const canvasHeight = imgHeight * scale;
 
       canvas.setDimensions({ width: canvasWidth, height: canvasHeight });
 
-      img.set({ left: 0, top: 0, scaleX: scale, scaleY: scale, selectable: false, evented: false });
+      img.set({
+        left: 0, top: 0, scaleX: scale, scaleY: scale,
+        selectable: false, evented: false,
+        data: { isBackground: true },
+      });
+      backgroundImageRef.current = img;
       canvas.add(img);
       canvas.sendObjectToBack(img);
 
       if (item.annotations) {
         try {
           const saved = JSON.parse(item.annotations);
-          canvas.loadFromJSON(saved).then(() => {
+          // Strip any background object from saved state (backward compat with old saves)
+          const annotationsOnly = {
+            ...saved,
+            objects: (saved.objects || []).filter((obj: any) => !obj.data?.isBackground),
+          };
+          canvas.loadFromJSON(annotationsOnly).then(() => {
+            if (cancelled) return;
+            // Re-add background after loadFromJSON clears the canvas
+            canvas.add(img);
+            canvas.sendObjectToBack(img);
             canvas.renderAll();
             pushHistory();
           });
@@ -83,7 +110,10 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
     });
 
     return () => {
+      cancelled = true;
       canvas.dispose();
+      fabricRef.current = null;
+      backgroundImageRef.current = null;
     };
   }, [item, pushHistory]);
 
@@ -91,8 +121,13 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
     if (historyIndexRef.current <= 0) return;
     historyIndexRef.current--;
     const canvas = fabricRef.current;
+    const bg = backgroundImageRef.current;
     if (!canvas) return;
     canvas.loadFromJSON(JSON.parse(historyRef.current[historyIndexRef.current])).then(() => {
+      if (bg) {
+        canvas.add(bg);
+        canvas.sendObjectToBack(bg);
+      }
       canvas.renderAll();
     });
   }, []);
@@ -101,8 +136,13 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
     if (historyIndexRef.current >= historyRef.current.length - 1) return;
     historyIndexRef.current++;
     const canvas = fabricRef.current;
+    const bg = backgroundImageRef.current;
     if (!canvas) return;
     canvas.loadFromJSON(JSON.parse(historyRef.current[historyIndexRef.current])).then(() => {
+      if (bg) {
+        canvas.add(bg);
+        canvas.sendObjectToBack(bg);
+      }
       canvas.renderAll();
     });
   }, []);
@@ -120,7 +160,7 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
       canvas.selection = true;
       canvas.forEachObject((obj) => {
         // Keep background image non-selectable
-        if (!obj.get('isBackground')) {
+        if (!obj.data?.isBackground) {
           obj.selectable = true;
         }
       });
@@ -221,10 +261,19 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
     const canvas = fabricRef.current;
     if (!canvas) return;
     setIsSaving(true);
+    setSaveError(null);
     try {
-      const json = JSON.stringify(canvas.toJSON());
-      await window.electronAPI.saveAnnotations(item.id, json);
-      onSave({ ...item, annotations: json });
+      // Save only annotation objects (exclude background) to keep DB size small
+      const fullJson = canvas.toJSON();
+      const annotationsOnly = {
+        ...fullJson,
+        objects: fullJson.objects.filter((obj: any) => !obj.data?.isBackground),
+      };
+      await window.electronAPI.saveAnnotations(item.id, JSON.stringify(annotationsOnly));
+      onSave();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to save annotations';
+      setSaveError(message);
     } finally {
       setIsSaving(false);
     }
@@ -233,7 +282,8 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
   const handleExport = () => {
     const canvas = fabricRef.current;
     if (!canvas) return;
-    const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 1 });
+    // Export at original image resolution by inverting the display scale factor
+    const dataUrl = canvas.toDataURL({ format: 'png', multiplier: 1 / scaleRef.current });
     window.electronAPI.exportAnnotatedImage(item.id, dataUrl);
   };
 
@@ -277,6 +327,9 @@ function AnnotationEditor({ item, onSave, onCancel }: AnnotationEditorProps) {
           ↪
         </button>
         <div className="flex-1" />
+        {saveError && (
+          <span className="text-sm text-red-600" role="alert">{saveError}</span>
+        )}
         <button
           onClick={handleExport}
           title="Copy annotated image to clipboard"

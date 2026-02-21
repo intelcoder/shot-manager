@@ -67,7 +67,7 @@ function Dashboard() {
     setAnnotatingItem(item);
   };
 
-  const handleAnnotationSave = (updatedItem: CaptureFile) => {
+  const handleAnnotationSave = () => {
     loadCaptures();
     setAnnotatingItem(null);
   };
