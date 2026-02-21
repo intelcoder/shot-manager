@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Video, Image, Trash2, Play } from 'lucide-react';
 import type { CaptureFile } from '../../../shared/types/capture';
 import { useCapturesStore } from '../../stores/captures-store';
 import { toFileUrl } from '../../utils/file-url';
@@ -79,7 +80,7 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
     // Create a custom drag image showing count
     if (captureIds.length > 1) {
       const dragImage = document.createElement('div');
-      dragImage.className = 'bg-primary-500 text-white px-3 py-2 rounded-lg shadow-lg font-medium';
+      dragImage.className = 'bg-accent text-white px-3 py-2 rounded-lg shadow-lg font-medium';
       dragImage.textContent = `${captureIds.length} items`;
       dragImage.style.position = 'absolute';
       dragImage.style.top = '-1000px';
@@ -91,8 +92,8 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
 
   return (
     <div
-      className={`relative group cursor-pointer rounded-lg overflow-hidden bg-gray-100 shadow-sm hover:shadow-md transition-all ${
-        isSelected ? 'ring-2 ring-primary-500 ring-offset-2' : ''
+      className={`relative group cursor-pointer rounded-lg overflow-hidden bg-surface-tertiary shadow-macos-sm hover:shadow-macos-md transition-all ${
+        isSelected ? 'ring-2 ring-accent ring-offset-2 dark:ring-offset-surface-primary' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -109,8 +110,8 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
           <div
             className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
               isSelected
-                ? 'bg-primary-500 border-primary-500'
-                : 'bg-white/80 border-gray-400 hover:border-primary-500'
+                ? 'bg-accent border-accent'
+                : 'bg-white/80 dark:bg-surface-secondary/80 border-content-tertiary hover:border-accent'
             }`}
           >
             {isSelected && (
@@ -123,18 +124,25 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
       )}
 
       {/* Thumbnail */}
-      <div className="aspect-video bg-gray-200 relative">
+      <div className="aspect-video bg-surface-tertiary relative">
         {imageSrc && !imageError ? (
           <img
             src={imageSrc}
             alt={item.filename}
             className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
+            onError={(e) => {
+              console.error('[GalleryItem] Failed to load image:', imageSrc, 'filepath:', item.filepath);
+              setImageError(true);
+            }}
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl text-gray-400">
-            {item.type === 'video' ? '🎬' : '🖼️'}
+          <div className="w-full h-full flex items-center justify-center text-content-tertiary">
+            {item.type === 'video' ? (
+              <Video size={40} strokeWidth={1.5} />
+            ) : (
+              <Image size={40} strokeWidth={1.5} />
+            )}
           </div>
         )}
 
@@ -168,7 +176,7 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
         {/* Video indicator */}
         {item.type === 'video' && (
           <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
-            <span>▶</span>
+            <Play size={10} fill="currentColor" />
             <span>{item.duration ? formatDuration(item.duration) : '--:--'}</span>
           </div>
         )}
@@ -179,13 +187,13 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
             {item.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag.id}
-                className="bg-primary-500 text-white text-xs px-2 py-0.5 rounded"
+                className="bg-accent text-white text-xs px-2 py-0.5 rounded"
               >
                 {tag.name}
               </span>
             ))}
             {item.tags.length > 2 && (
-              <span className="bg-gray-500 text-white text-xs px-2 py-0.5 rounded">
+              <span className="bg-content-tertiary text-white text-xs px-2 py-0.5 rounded">
                 +{item.tags.length - 2}
               </span>
             )}
@@ -200,18 +208,18 @@ function GalleryItem({ item, isSelected, onSelect, onClick, onDelete }: GalleryI
                 e.stopPropagation();
                 onDelete();
               }}
-              className="p-2 bg-white/90 rounded-full hover:bg-white transition-colors"
+              className="p-2.5 bg-white/90 dark:bg-surface-secondary/90 rounded-full hover:bg-white dark:hover:bg-surface-secondary transition-colors text-content-primary"
               title="Delete"
             >
-              🗑️
+              <Trash2 size={18} strokeWidth={1.5} />
             </button>
           </div>
         )}
       </div>
 
       {/* Filename */}
-      <div className="p-2 bg-white">
-        <p className="text-xs text-gray-600 truncate" title={item.filename}>
+      <div className="p-2 bg-surface-primary">
+        <p className="text-xs text-content-secondary truncate" title={item.filename}>
           {item.filename}
         </p>
       </div>

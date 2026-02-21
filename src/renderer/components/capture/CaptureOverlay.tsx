@@ -22,6 +22,17 @@ function CaptureOverlay({ mode, onClose, onComplete }: CaptureOverlayProps) {
   const [isCapturing, setIsCapturing] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
+  // Make body transparent so desktop shows through on macOS
+  useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'transparent';
+    document.documentElement.style.backgroundColor = 'transparent';
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
+
   const getSelectionArea = useCallback((): SelectionArea | null => {
     if (!selection.startPoint || !selection.endPoint) return null;
 

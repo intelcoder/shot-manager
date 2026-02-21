@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Play, Pause, Square } from 'lucide-react';
 
 type OverlayMode = 'countdown' | 'recording';
 
@@ -28,6 +29,17 @@ function RecordingOverlay() {
   const [countdown, setCountdown] = useState(initial.countdown);
   const [countdownAnimating, setCountdownAnimating] = useState(false);
   const [recordingData, setRecordingData] = useState<RecordingData>({ duration: 0, isPaused: false });
+
+  // Make body transparent so desktop shows through on macOS
+  useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'transparent';
+    document.documentElement.style.backgroundColor = 'transparent';
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
 
   // Handle countdown tick
   useEffect(() => {
@@ -168,14 +180,18 @@ function RecordingOverlay() {
           className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
           title={recordingData.isPaused ? 'Resume' : 'Pause'}
         >
-          {recordingData.isPaused ? '▶' : '⏸'}
+          {recordingData.isPaused ? (
+            <Play size={16} strokeWidth={2} fill="currentColor" />
+          ) : (
+            <Pause size={16} strokeWidth={2} />
+          )}
         </button>
         <button
           onClick={handleStop}
           className="p-1.5 hover:bg-white/20 rounded-full transition-colors text-white"
           title="Stop"
         >
-          ⏹
+          <Square size={16} strokeWidth={2} fill="currentColor" />
         </button>
       </div>
     </div>

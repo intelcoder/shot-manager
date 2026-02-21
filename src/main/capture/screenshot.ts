@@ -11,6 +11,9 @@ export async function captureScreenshot(options: ScreenshotOptions): Promise<Cap
   // Close capture overlay if open
   closeCaptureOverlay();
 
+  // Wait for overlay to fully close before capturing
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
   // Get the target display
   const display = options.displayId
     ? screen.getAllDisplays().find((d) => d.id === options.displayId)
@@ -55,7 +58,14 @@ export async function captureScreenshot(options: ScreenshotOptions): Promise<Cap
   if (options.mode === 'area' && options.area) {
     console.log('[Screenshot] Cropping to area:', options.area);
     image = cropImage(image, options.area, display.scaleFactor);
-    console.log('[Screenshot] Cropped size:', image.getSize());
+    const croppedSize = image.getSize();
+    console.log('[Screenshot] Cropped size:', croppedSize);
+
+    // Validate cropped image has valid dimensions
+    if (croppedSize.width === 0 || croppedSize.height === 0) {
+      console.error('[Screenshot] Crop resulted in empty image');
+      throw new Error('Invalid crop area');
+    }
   }
 
   // Save the screenshot

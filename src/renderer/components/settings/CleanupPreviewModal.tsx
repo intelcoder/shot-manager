@@ -35,10 +35,10 @@ function CleanupPreviewModal({
 }: CleanupPreviewModalProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
-        <div className="p-6 border-b flex-shrink-0">
-          <h3 className="text-lg font-semibold text-gray-900">Cleanup Preview</h3>
-          <p className="text-sm text-gray-500 mt-1">
+      <div className="bg-surface-primary rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col">
+        <div className="p-6 border-b border-border flex-shrink-0">
+          <h3 className="text-lg font-semibold text-content-primary">Cleanup Preview</h3>
+          <p className="text-sm text-content-tertiary mt-1">
             The following captures will be permanently deleted.
           </p>
         </div>
@@ -47,16 +47,16 @@ function CleanupPreviewModal({
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="animate-spin text-2xl mb-2">...</div>
-              <p className="text-gray-500">Loading preview...</p>
+              <p className="text-content-tertiary">Loading preview...</p>
             </div>
           ) : !preview ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-content-tertiary">
               Failed to load preview
             </div>
           ) : preview.totalCount === 0 ? (
             <div className="text-center py-12">
               <svg
-                className="w-12 h-12 mx-auto text-green-500 mb-3"
+                className="w-12 h-12 mx-auto text-green-500 dark:text-green-400 mb-3"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -68,16 +68,16 @@ function CleanupPreviewModal({
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              <p className="text-gray-600 font-medium">No captures to delete</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-content-secondary font-medium">No captures to delete</p>
+              <p className="text-sm text-content-tertiary mt-1">
                 All captures are either protected or don't match the rule criteria.
               </p>
             </div>
           ) : (
             <div>
               {/* Summary */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                <div className="flex items-center gap-2 text-amber-800">
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
@@ -90,7 +90,7 @@ function CleanupPreviewModal({
                     {preview.totalCount} item{preview.totalCount !== 1 ? 's' : ''} will be deleted
                   </span>
                 </div>
-                <p className="text-sm text-amber-700 mt-1">
+                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
                   This will free up {formatBytes(preview.totalSizeBytes)} of disk space.
                 </p>
               </div>
@@ -100,17 +100,17 @@ function CleanupPreviewModal({
                 {preview.captures.slice(0, 50).map((capture) => (
                   <div
                     key={capture.id}
-                    className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-2 border-b border-border-subtle last:border-0"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-700 truncate">{capture.filename}</p>
-                      <p className="text-xs text-gray-400">{formatDate(capture.createdAt)}</p>
+                      <p className="text-sm text-content-secondary truncate">{capture.filename}</p>
+                      <p className="text-xs text-content-tertiary">{formatDate(capture.createdAt)}</p>
                     </div>
-                    <span className="text-xs text-gray-500 ml-2">{formatBytes(capture.size)}</span>
+                    <span className="text-xs text-content-tertiary ml-2">{formatBytes(capture.size)}</span>
                   </div>
                 ))}
                 {preview.totalCount > 50 && (
-                  <p className="text-sm text-gray-500 text-center py-2">
+                  <p className="text-sm text-content-tertiary text-center py-2">
                     ...and {preview.totalCount - 50} more items
                   </p>
                 )}
@@ -119,10 +119,10 @@ function CleanupPreviewModal({
           )}
         </div>
 
-        <div className="p-6 border-t bg-gray-50 flex justify-end gap-3 rounded-b-xl flex-shrink-0">
+        <div className="p-6 border-t border-border bg-surface-secondary flex justify-end gap-3 rounded-b-xl flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="px-4 py-2 text-content-secondary hover:text-content-primary transition-colors"
           >
             Cancel
           </button>

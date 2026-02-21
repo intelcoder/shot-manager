@@ -181,7 +181,10 @@ function startRecordingImmediate(data: {
   const mainWindow = getMainWindow();
   if (mainWindow) {
     currentRecordingWindow = mainWindow;
+    console.log('[Video] Sending recording:start to renderer');
     mainWindow.webContents.send(IPC_CHANNELS.RECORDING_START, data);
+  } else {
+    console.error('[Video] No main window found, recording will not work');
   }
 
   broadcastRecordingStatus();
@@ -253,7 +256,10 @@ export function resumeRecording(): void {
 }
 
 export async function stopRecording(): Promise<CaptureResult | null> {
+  console.log('[Video] stopRecording called, isRecording:', recordingState.isRecording);
+
   if (!recordingState.isRecording) {
+    console.log('[Video] Not recording, returning null');
     return null;
   }
 
@@ -267,6 +273,7 @@ export async function stopRecording(): Promise<CaptureResult | null> {
   setTrayRecording(false);
 
   const duration = recordingState.duration;
+  console.log('[Video] Recording duration:', duration);
 
   // Reset state
   recordingState = {
@@ -281,6 +288,8 @@ export async function stopRecording(): Promise<CaptureResult | null> {
 
   // Request video data from renderer BEFORE closing overlay windows
   return new Promise((resolve) => {
+    console.log('[Video] currentRecordingWindow exists:', !!currentRecordingWindow);
+
     if (currentRecordingWindow) {
       let timeoutId: NodeJS.Timeout | null = null;
 
@@ -305,7 +314,9 @@ export async function stopRecording(): Promise<CaptureResult | null> {
 
         try {
           const buffer = Buffer.from(data.buffer);
+          console.log('[Video] Saving video, buffer length:', buffer.length);
           const result = await saveVideo(buffer, duration, data.width, data.height);
+          console.log('[Video] Video saved:', result?.filepath);
 
           // Show preview if enabled
           const showPreview = getSetting('showPreview');
@@ -323,7 +334,7 @@ export async function stopRecording(): Promise<CaptureResult | null> {
           broadcastRecordingStatus();
           resolve(result);
         } catch (error) {
-          console.error('Error saving video:', error);
+          console.error('[Video] Error saving video:', error);
           broadcastRecordingStatus();
           resolve(null);
         }

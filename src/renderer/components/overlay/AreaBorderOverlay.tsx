@@ -106,6 +106,17 @@ function AreaBorderOverlay() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [countdown, clearTimer]);
 
+  // Make body transparent so desktop shows through on macOS
+  useEffect(() => {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = 'transparent';
+    document.documentElement.style.backgroundColor = 'transparent';
+    return () => {
+      document.body.style.backgroundColor = originalBg;
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
+
   useEffect(() => {
     // Listen for initial area data (backup for URL params)
     const unsubscribeInit = window.electronAPI?.onAreaBorderInit((initData) => {

@@ -65,6 +65,7 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
   };
 
   const handleMediaError = () => {
+    console.error('[PreviewPopup] Failed to load media:', data?.filepath);
     setMediaError(true);
   };
 
@@ -103,15 +104,15 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full bg-white rounded-lg shadow-xl overflow-hidden flex flex-col transition-transform"
+      className="w-full h-full bg-surface-primary rounded-lg shadow-xl overflow-hidden flex flex-col transition-transform"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* Preview */}
-      <div className="flex-1 bg-gray-100 relative">
+      <div className="flex-1 bg-surface-tertiary relative">
         {mediaError ? (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-content-tertiary">
             <span aria-label="Image unavailable">Media unavailable</span>
           </div>
         ) : data.type === 'video' ? (
@@ -151,19 +152,19 @@ function PreviewPopup({ data, onDismiss }: PreviewPopupProps) {
 
       {/* Info and actions */}
       <div className="p-3">
-        <p className="text-xs text-gray-600 truncate mb-2" title={data.filename}>
+        <p className="text-xs text-content-secondary truncate mb-2" title={data.filename}>
           {data.filename}
         </p>
 
         {deleteError && (
-          <p className="text-xs text-red-600 mb-2">{deleteError}</p>
+          <p className="text-xs text-red-600 dark:text-red-400 mb-2">{deleteError}</p>
         )}
 
         <div className="flex gap-2">
           {data.type === 'screenshot' && (
             <button
               onClick={handleCopy}
-              className="flex-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 transition-colors"
+              className="flex-1 px-3 py-1.5 bg-surface-tertiary text-content-secondary text-sm rounded hover:bg-surface-secondary transition-colors"
             >
               Copy
             </button>

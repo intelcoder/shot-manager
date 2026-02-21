@@ -142,6 +142,47 @@ Dashboard
 - `duration: number` - elapsed recording time in seconds
 - `startRecording`, `stopRecording`, `togglePause`
 
+### setup-store.ts
+- `currentStep: SetupStep` - current wizard step ('welcome' | 'screen' | 'microphone' | 'complete')
+- `permissions: PermissionStatus` - screen/microphone permission status
+- `isLoading: boolean` - loading state during permission checks
+- Navigation: `nextStep`, `prevStep`, `goToStep`
+- Actions: `loadPermissions`, `requestMicrophonePermission`, `completeSetup`
+
+## Initial Setup Flow
+
+First-run setup wizard that guides users through granting necessary permissions.
+
+### Key Files
+- `src/main/services/permissions.ts` - Permission checking service (platform-specific)
+- `src/renderer/stores/setup-store.ts` - Wizard state management
+- `src/renderer/components/setup/` - Setup wizard UI components:
+  - `SetupWizard.tsx` - Main container with progress indicator
+  - `WelcomeStep.tsx` - Introduction with feature highlights
+  - `ScreenPermissionStep.tsx` - macOS screen recording permission
+  - `MicrophonePermissionStep.tsx` - Optional microphone permission
+  - `CompleteStep.tsx` - Success summary
+
+### Settings Flags
+- `setupCompleted: boolean` - Whether setup wizard has been completed
+- `permissionsSkipped: boolean` - Whether user skipped granting permissions
+
+### Platform Behavior
+| Permission | macOS | Windows |
+|------------|-------|---------|
+| Screen Recording | Required - manual grant via System Preferences | Not needed (step skipped) |
+| Microphone | Optional - can request programmatically | Optional - can request |
+
+### IPC Channels (Permissions)
+- `PERMISSIONS_GET_STATUS` - Get current permission status
+- `PERMISSIONS_REQUEST_MICROPHONE` - Request microphone access
+- `PERMISSIONS_OPEN_SCREEN_SETTINGS` - Open System Preferences (macOS)
+- `PERMISSIONS_OPEN_MICROPHONE_SETTINGS` - Open microphone settings
+
+### Route
+- Hash route: `/#/setup` - Can be used to re-run setup wizard
+- App automatically redirects to setup if `setupCompleted` is false
+
 ## Current Limitations
 
 - **No folder/collection system**: Database has no concept of user-created folders

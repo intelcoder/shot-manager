@@ -51,7 +51,7 @@ export function showPreviewPopup(result: CaptureResult, duration: number = 5000)
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: true,
+      sandbox: false,
     },
   });
 

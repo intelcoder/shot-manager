@@ -24,20 +24,21 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "sql.js": "^1.10.3",
     "date-fns": "^3.6.0",
     "electron-store": "^8.2.0",
+    "lucide-react": "^0.563.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sql.js": "^1.10.3",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.1",
-    "@types/sql.js": "^1.4.9",
     "@types/node": "^20.12.7",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
+    "@types/sql.js": "^1.4.9",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",

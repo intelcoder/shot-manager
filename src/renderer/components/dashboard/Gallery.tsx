@@ -1,4 +1,5 @@
 import React from 'react';
+import { Camera } from 'lucide-react';
 import GalleryItem from './GalleryItem';
 import { useCapturesStore } from '../../stores/captures-store';
 import type { CaptureFile } from '../../../shared/types/capture';
@@ -30,7 +31,7 @@ function Gallery({ items, isLoading, onItemClick, onItemDelete }: GalleryProps) 
           {[...Array(8)].map((_, i) => (
             <div
               key={i}
-              className="aspect-video bg-gray-200 rounded-lg animate-pulse"
+              className="aspect-video bg-surface-tertiary rounded-lg animate-pulse"
             />
           ))}
         </div>
@@ -40,13 +41,13 @@ function Gallery({ items, isLoading, onItemClick, onItemDelete }: GalleryProps) 
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-500">
-        <div className="text-6xl mb-4">📷</div>
-        <h3 className="text-lg font-medium mb-2">No captures yet</h3>
+      <div className="flex flex-col items-center justify-center h-full text-content-tertiary">
+        <Camera size={64} strokeWidth={1} className="mb-4 text-content-tertiary" />
+        <h3 className="text-lg font-medium mb-2 text-content-secondary">No captures yet</h3>
         <p className="text-sm">
           Take a screenshot or record a video to get started
         </p>
-        <div className="mt-4 text-sm text-gray-400">
+        <div className="mt-4 text-sm text-content-tertiary">
           <p>Press Ctrl+Shift+3 for fullscreen screenshot</p>
           <p>Press Ctrl+Shift+4 for area selection</p>
         </div>

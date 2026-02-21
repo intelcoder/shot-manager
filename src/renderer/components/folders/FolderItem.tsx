@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { ChevronRight, Folder } from 'lucide-react';
 import type { FolderTree } from '../../../shared/types/folder';
 import { useFoldersStore } from '../../stores/folders-store';
 
@@ -131,10 +132,10 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
       <div
         className={`flex items-center gap-1 px-2 py-1.5 rounded-md cursor-pointer group transition-colors ${
           isSelected
-            ? 'bg-primary-100 text-primary-700'
+            ? 'bg-accent-subtle text-accent'
             : isDragOver
-              ? 'bg-primary-50 ring-2 ring-primary-300'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? 'bg-accent-subtle ring-2 ring-accent'
+              : 'text-content-secondary hover:bg-surface-tertiary hover:text-content-primary'
         }`}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
         onClick={() => onSelect(folder.id)}
@@ -146,7 +147,7 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
       >
         {/* Expand/collapse toggle */}
         <button
-          className={`w-4 h-4 flex items-center justify-center text-gray-400 hover:text-gray-600 ${
+          className={`w-4 h-4 flex items-center justify-center text-content-tertiary hover:text-content-primary ${
             !hasChildren ? 'invisible' : ''
           }`}
           onClick={(e) => {
@@ -154,25 +155,15 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
             toggleExpanded(folder.id);
           }}
         >
-          <svg
-            className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRight
+            size={12}
+            strokeWidth={2}
+            className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+          />
         </button>
 
         {/* Folder icon */}
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-          />
-        </svg>
+        <Folder size={16} strokeWidth={1.5} className="text-content-tertiary" />
 
         {/* Folder name */}
         {isEditing ? (
@@ -183,7 +174,7 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
             onChange={(e) => setEditName(e.target.value)}
             onBlur={handleRename}
             onKeyDown={handleKeyDown}
-            className="flex-1 px-1 py-0 text-sm bg-white border rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="flex-1 px-1 py-0 text-sm bg-surface-primary text-content-primary border border-accent rounded focus:outline-none focus:ring-1 focus:ring-accent"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
@@ -192,7 +183,7 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
 
         {/* Capture count badge */}
         {folder.captureCount > 0 && (
-          <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+          <span className="text-xs text-content-tertiary bg-surface-tertiary px-1.5 py-0.5 rounded-full">
             {folder.captureCount}
           </span>
         )}
@@ -202,11 +193,11 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
       {showContextMenu && (
         <div
           ref={contextMenuRef}
-          className="fixed z-50 bg-white rounded-md shadow-lg border py-1 min-w-[120px]"
+          className="fixed z-50 bg-surface-primary rounded-lg shadow-macos-lg border border-border py-1 min-w-[120px]"
           style={{ left: contextMenuPosition.x, top: contextMenuPosition.y }}
         >
           <button
-            className="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-100"
+            className="w-full text-left px-3 py-1.5 text-sm text-content-secondary hover:bg-surface-secondary hover:text-content-primary transition-colors"
             onClick={() => {
               setShowContextMenu(false);
               setIsEditing(true);
@@ -215,14 +206,14 @@ function FolderItem({ folder, depth, onSelect, isSelected, onDrop }: FolderItemP
             Rename
           </button>
           <button
-            className="w-full text-left px-3 py-1.5 text-sm hover:bg-gray-100"
+            className="w-full text-left px-3 py-1.5 text-sm text-content-secondary hover:bg-surface-secondary hover:text-content-primary transition-colors"
             onClick={handleNewSubfolder}
           >
             New Subfolder
           </button>
-          <hr className="my-1" />
+          <hr className="my-1 border-border" />
           <button
-            className="w-full text-left px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+            className="w-full text-left px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             onClick={handleDelete}
           >
             Delete

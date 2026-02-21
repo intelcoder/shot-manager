@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import { useCapturesStore } from '../../stores/captures-store';
 import type { CaptureFile } from '../../../shared/types/capture';
 
@@ -51,21 +52,21 @@ function TagEditor({ capture }: TagEditorProps) {
 
   return (
     <div>
-      <label className="text-sm text-gray-500 mb-2 block">Tags</label>
+      <label className="text-sm text-content-tertiary mb-2 block">Tags</label>
 
       {/* Current Tags */}
       <div className="flex flex-wrap gap-2 mb-2">
         {capture.tags.map((tag) => (
           <span
             key={tag.id}
-            className="bg-primary-100 text-primary-700 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+            className="bg-accent-subtle text-accent px-3 py-1 rounded-full text-sm flex items-center gap-2"
           >
             {tag.name}
             <button
               onClick={() => handleRemoveTag(tag.id)}
-              className="hover:text-primary-900"
+              className="hover:text-accent-hover transition-colors"
             >
-              ×
+              <X size={14} strokeWidth={2} />
             </button>
           </span>
         ))}
@@ -86,17 +87,17 @@ function TagEditor({ capture }: TagEditorProps) {
               handleCreateTag();
             }
           }}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+          className="w-full px-3 py-2 border border-border rounded-lg bg-surface-primary text-content-primary placeholder:text-content-tertiary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-sm"
         />
 
         {/* Dropdown */}
         {showDropdown && (filteredTags.length > 0 || newTagName) && (
-          <div className="absolute top-full left-0 w-full bg-white border rounded-lg shadow-lg mt-1 z-10 max-h-48 overflow-auto">
+          <div className="absolute top-full left-0 w-full bg-surface-primary border border-border rounded-lg shadow-macos-md mt-1 z-10 max-h-48 overflow-auto">
             {filteredTags.map((tag) => (
               <button
                 key={tag.id}
                 onClick={() => handleAddTag(tag.id)}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                className="w-full text-left px-4 py-2 hover:bg-surface-secondary text-sm text-content-secondary hover:text-content-primary transition-colors"
               >
                 {tag.name}
               </button>
@@ -104,7 +105,7 @@ function TagEditor({ capture }: TagEditorProps) {
             {newTagName && !tags.find((t) => t.name.toLowerCase() === newTagName.toLowerCase()) && (
               <button
                 onClick={handleCreateTag}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-primary-600"
+                className="w-full text-left px-4 py-2 hover:bg-surface-secondary text-sm text-accent transition-colors"
               >
                 Create "{newTagName}"
               </button>

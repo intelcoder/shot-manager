@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { Search, X } from 'lucide-react';
 import { useCapturesStore } from '../../stores/captures-store';
 
 function SearchBar() {
@@ -28,10 +29,10 @@ function SearchBar() {
           placeholder="Search by filename..."
           value={searchValue}
           onChange={handleSearchChange}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          className="w-full pl-10 pr-10 py-2 border border-border rounded-lg bg-surface-primary text-content-primary placeholder:text-content-tertiary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
         />
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-          🔍
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-content-tertiary">
+          <Search size={18} strokeWidth={1.5} />
         </span>
         {searchValue && (
           <button
@@ -39,9 +40,9 @@ function SearchBar() {
               setSearchValue('');
               setFilters({ search: undefined });
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-content-tertiary hover:text-content-secondary transition-colors"
           >
-            ✕
+            <X size={16} strokeWidth={1.5} />
           </button>
         )}
       </div>
@@ -50,7 +51,7 @@ function SearchBar() {
       <select
         value={filters.type || 'all'}
         onChange={(e) => setFilters({ type: e.target.value as any })}
-        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white"
+        className="px-4 py-2 border border-border rounded-lg bg-surface-primary text-content-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-shadow"
       >
         <option value="all">All Types</option>
         <option value="screenshot">Screenshots</option>

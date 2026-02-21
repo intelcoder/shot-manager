@@ -83,7 +83,7 @@ export async function saveScreenshot(image: Electron.NativeImage): Promise<Captu
 
 export async function saveVideo(buffer: Buffer, duration: number, width: number, height: number): Promise<CaptureResult> {
   let savePath = getSetting('savePath');
-  const prefix = getSetting('filePrefix');
+  const prefix = getSetting('filePrefix') || 'Recording';
 
   // Ensure savePath is valid, use default if empty
   if (!savePath) {
@@ -98,7 +98,9 @@ export async function saveVideo(buffer: Buffer, duration: number, width: number,
   const filename = getUniqueFilename(folder, baseFilename);
   const filepath = path.join(folder, filename);
 
+  console.log('[FileManager] Saving video to:', filepath);
   await fs.promises.writeFile(filepath, buffer);
+  console.log('[FileManager] Video saved successfully');
 
   const stats = await fs.promises.stat(filepath);
 

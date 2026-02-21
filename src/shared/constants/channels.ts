@@ -50,6 +50,12 @@ export const IPC_CHANNELS = {
   SETTINGS_SET: 'settings:set',
   SETTINGS_SELECT_SAVE_PATH: 'settings:select-save-path',
 
+  // Permissions
+  PERMISSIONS_GET_STATUS: 'permissions:get-status',
+  PERMISSIONS_REQUEST_MICROPHONE: 'permissions:request-microphone',
+  PERMISSIONS_OPEN_SCREEN_SETTINGS: 'permissions:open-screen-settings',
+  PERMISSIONS_OPEN_MICROPHONE_SETTINGS: 'permissions:open-microphone-settings',
+
   // Shortcuts
   SHORTCUT_UPDATE: 'shortcut:update',
   SHORTCUT_RESET: 'shortcut:reset',

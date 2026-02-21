@@ -72,7 +72,7 @@ function CleanupRuleItem({
   return (
     <div
       className={`border rounded-lg p-4 transition-colors ${
-        rule.enabled ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-200 opacity-75'
+        rule.enabled ? 'bg-surface-primary border-border' : 'bg-surface-secondary border-border opacity-75'
       }`}
     >
       <div className="flex items-start justify-between">
@@ -81,7 +81,7 @@ function CleanupRuleItem({
           <button
             onClick={onToggleEnabled}
             className={`mt-0.5 relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-              rule.enabled ? 'bg-primary-500' : 'bg-gray-200'
+              rule.enabled ? 'bg-accent' : 'bg-surface-tertiary'
             }`}
             title={rule.enabled ? 'Disable rule' : 'Enable rule'}
           >
@@ -93,11 +93,11 @@ function CleanupRuleItem({
           </button>
 
           <div>
-            <h4 className={`font-medium ${rule.enabled ? 'text-gray-900' : 'text-gray-500'}`}>
+            <h4 className={`font-medium ${rule.enabled ? 'text-content-primary' : 'text-content-tertiary'}`}>
               {rule.name}
             </h4>
-            <p className="text-sm text-gray-500 mt-0.5">{formatConditions(rule)}</p>
-            <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
+            <p className="text-sm text-content-tertiary mt-0.5">{formatConditions(rule)}</p>
+            <div className="flex items-center gap-4 mt-2 text-xs text-content-tertiary">
               <span>{formatSchedule(rule)}</span>
               <span>{formatLastRun(rule)}</span>
             </div>
@@ -108,7 +108,7 @@ function CleanupRuleItem({
         <div className="flex items-center gap-2">
           <button
             onClick={onPreview}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors"
+            className="px-3 py-1.5 text-sm text-content-secondary hover:text-content-primary hover:bg-surface-tertiary rounded transition-colors"
             title="Preview what will be deleted"
           >
             Preview
@@ -116,14 +116,14 @@ function CleanupRuleItem({
           <button
             onClick={onRunNow}
             disabled={isExecuting}
-            className="px-3 py-1.5 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 text-sm text-accent hover:text-accent-hover hover:bg-accent-subtle rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Run this rule now"
           >
             {isExecuting ? 'Running...' : 'Run Now'}
           </button>
           <button
             onClick={onEdit}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+            className="p-1.5 text-content-tertiary hover:text-content-secondary hover:bg-surface-tertiary rounded transition-colors"
             title="Edit rule"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +137,7 @@ function CleanupRuleItem({
           </button>
           <button
             onClick={onDelete}
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            className="p-1.5 text-content-tertiary hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
             title="Delete rule"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

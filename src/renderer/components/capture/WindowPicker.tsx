@@ -64,15 +64,15 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-white rounded-xl shadow-2xl w-[800px] max-h-[600px] flex flex-col">
+      <div className="bg-surface-primary rounded-xl shadow-2xl w-[800px] max-h-[600px] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-800">Select a Window to Record</h2>
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-content-primary">Select a Window to Record</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-surface-tertiary rounded-lg transition-colors"
           >
-            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-content-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -85,7 +85,7 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" />
             </div>
           ) : windows.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-content-tertiary py-8">
               No windows available to record.
             </div>
           ) : (
@@ -101,13 +101,13 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
                   className={`
                     relative rounded-lg overflow-hidden border-2 transition-all
                     ${selectedId === window.id
-                      ? 'border-primary-500 ring-2 ring-primary-200'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-accent ring-2 ring-accent/20'
+                      : 'border-border hover:border-content-tertiary'
                     }
                   `}
                 >
                   {/* Thumbnail */}
-                  <div className="aspect-video bg-gray-100">
+                  <div className="aspect-video bg-surface-tertiary">
                     <img
                       src={window.thumbnail}
                       alt={window.name}
@@ -116,12 +116,12 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
                   </div>
 
                   {/* Window name */}
-                  <div className="p-2 bg-white">
+                  <div className="p-2 bg-surface-primary">
                     <div className="flex items-center gap-2">
                       {window.appIcon && (
                         <img src={window.appIcon} alt="" className="w-4 h-4" />
                       )}
-                      <span className="text-sm text-gray-700 truncate">
+                      <span className="text-sm text-content-secondary truncate">
                         {window.name}
                       </span>
                     </div>
@@ -146,14 +146,14 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-4 border-t bg-gray-50">
-          <p className="text-sm text-gray-500">
+        <div className="flex items-center justify-between p-4 border-t border-border bg-surface-secondary">
+          <p className="text-sm text-content-tertiary">
             Double-click or select a window and click Record
           </p>
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              className="px-4 py-2 text-content-secondary bg-surface-tertiary hover:bg-surface-primary rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -164,7 +164,7 @@ function WindowPicker({ onSelect, onClose }: WindowPickerProps) {
                 px-4 py-2 rounded-lg transition-colors
                 ${selectedId
                   ? 'bg-red-500 hover:bg-red-600 text-white'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-surface-tertiary text-content-tertiary cursor-not-allowed'
                 }
               `}
             >

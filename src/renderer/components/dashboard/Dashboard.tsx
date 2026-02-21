@@ -27,8 +27,15 @@ function Dashboard() {
       loadFolderTree();
     });
 
+    // Listen for open-settings event (used when returning from setup wizard)
+    const handleOpenSettings = () => {
+      setShowSettings(true);
+    };
+    window.addEventListener('open-settings', handleOpenSettings);
+
     return () => {
       unsubscribe?.();
+      window.removeEventListener('open-settings', handleOpenSettings);
     };
   }, [loadCaptures, loadTags, loadFolderTree]);
 
@@ -59,7 +66,7 @@ function Dashboard() {
 
   if (showSettings) {
     return (
-      <div className="h-screen flex flex-col bg-white">
+      <div className="h-screen flex flex-col bg-surface-primary">
         <SettingsPanel onBack={() => setShowSettings(false)} />
       </div>
     );
@@ -67,11 +74,11 @@ function Dashboard() {
 
   return (
     <DragProvider>
-      <div className="h-screen flex flex-col bg-white">
+      <div className="h-screen flex flex-col bg-surface-primary">
         {/* Header */}
-        <header className="border-b bg-gray-50">
+        <header className="border-b border-border bg-surface-secondary">
           <div className="flex items-center justify-between px-4 py-2">
-            <h1 className="text-lg font-semibold text-gray-800">Shot Manager</h1>
+            <h1 className="text-lg font-semibold text-content-primary">Shot Manager</h1>
           </div>
           <SearchBar />
         </header>
@@ -79,7 +86,7 @@ function Dashboard() {
         {/* Main content */}
         <div className="flex flex-1 overflow-hidden">
           <Sidebar onSettingsClick={() => setShowSettings(true)} />
-          <main className="flex-1 overflow-auto bg-gray-50">
+          <main className="flex-1 overflow-auto bg-surface-secondary">
             <Gallery
               items={captures}
               isLoading={isLoading}

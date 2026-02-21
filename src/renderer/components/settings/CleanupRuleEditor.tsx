@@ -17,9 +17,9 @@ interface FormFieldProps {
 function FormField({ label, children, hint }: FormFieldProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-content-secondary mb-1">{label}</label>
       {children}
-      {hint && <p className="text-xs text-gray-500 mt-1">{hint}</p>}
+      {hint && <p className="text-xs text-content-tertiary mt-1">{hint}</p>}
     </div>
   );
 }
@@ -37,9 +37,9 @@ function ToggleOption({ label, checked, onChange }: ToggleOptionProps) {
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
+        className="w-4 h-4 text-accent border-border rounded focus:ring-accent bg-surface-primary"
       />
-      <span className="text-sm text-gray-600">{label}</span>
+      <span className="text-sm text-content-secondary">{label}</span>
     </label>
   );
 }
@@ -119,13 +119,13 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-surface-primary rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b flex-shrink-0">
-          <h3 className="text-lg font-semibold text-gray-900">
+        <div className="p-6 border-b border-border flex-shrink-0">
+          <h3 className="text-lg font-semibold text-content-primary">
             {rule ? 'Edit Cleanup Rule' : 'Create Cleanup Rule'}
           </h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-content-tertiary mt-1">
             Configure conditions for automatic capture cleanup.
           </p>
         </div>
@@ -135,7 +135,7 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
           <div className="p-6 space-y-5">
             {/* Error display */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-center gap-2">
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-600 dark:text-red-400 flex items-center gap-2">
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -150,7 +150,7 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
                 value={formData.name}
                 onChange={(e) => updateField('name', e.target.value)}
                 placeholder="e.g., Clean old untagged captures"
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent bg-surface-primary text-content-primary placeholder:text-content-tertiary"
                 autoFocus
               />
             </FormField>
@@ -163,15 +163,15 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
                   value={formData.olderThanDays}
                   onChange={(e) => updateField('olderThanDays', Math.max(1, parseInt(e.target.value) || 1))}
                   min={1}
-                  className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-24 px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent bg-surface-primary text-content-primary"
                 />
-                <span className="text-gray-600">days</span>
+                <span className="text-content-secondary">days</span>
               </div>
             </FormField>
 
             {/* Protection Options */}
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">Protection Options</label>
+              <label className="block text-sm font-medium text-content-secondary">Protection Options</label>
               <div className="space-y-2 pl-1">
                 <ToggleOption
                   label="Protect starred captures"
@@ -191,7 +191,7 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
               <select
                 value={formData.captureTypes}
                 onChange={(e) => updateField('captureTypes', e.target.value as 'all' | 'screenshot' | 'video')}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent bg-surface-primary text-content-primary"
               >
                 <option value="all">All captures</option>
                 <option value="screenshot">Screenshots only</option>
@@ -204,7 +204,7 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
               <select
                 value={formData.scheduleType}
                 onChange={(e) => updateField('scheduleType', e.target.value as 'manual' | 'daily' | 'weekly')}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent bg-surface-primary text-content-primary"
               >
                 <option value="manual">Manual only</option>
                 <option value="daily">Daily</option>
@@ -221,7 +221,7 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
                 <select
                   value={formData.scheduleHour}
                   onChange={(e) => updateField('scheduleHour', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent bg-surface-primary text-content-primary"
                 >
                   {HOURS.map((hour) => (
                     <option key={hour.value} value={hour.value}>
@@ -234,18 +234,18 @@ function CleanupRuleEditor({ rule, onSave, onClose }: CleanupRuleEditorProps) {
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t bg-gray-50 flex justify-end gap-3 flex-shrink-0">
+          <div className="p-6 border-t border-border bg-surface-secondary flex justify-end gap-3 flex-shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-4 py-2 text-content-secondary hover:text-content-primary transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving && (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
